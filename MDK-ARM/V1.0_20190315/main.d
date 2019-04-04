@@ -26,7 +26,6 @@ v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
-v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_iwdg.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h
 v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
@@ -38,8 +37,14 @@ v1.0_20190315\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
 v1.0_20190315\main.o: ../Inc/adc.h
 v1.0_20190315\main.o: ../Inc/can.h
 v1.0_20190315\main.o: ../Inc/dma.h
+v1.0_20190315\main.o: ../Inc/fatfs.h
+v1.0_20190315\main.o: ../Middlewares/Third_Party/FatFs/src/ff.h
+v1.0_20190315\main.o: ../Middlewares/Third_Party/FatFs/src/integer.h
+v1.0_20190315\main.o: ../Inc/ffconf.h
+v1.0_20190315\main.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h
+v1.0_20190315\main.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
+v1.0_20190315\main.o: ../Inc/user_diskio.h
 v1.0_20190315\main.o: ../Inc/i2c.h
-v1.0_20190315\main.o: ../Inc/iwdg.h
 v1.0_20190315\main.o: ../Inc/spi.h
 v1.0_20190315\main.o: ../Inc/tim.h
 v1.0_20190315\main.o: ../Inc/usart.h
