@@ -23,17 +23,15 @@
 #include "adc.h"
 #include "can.h"
 #include "dma.h"
-#include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "User_usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,9 +109,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
-  MX_USB_DEVICE_Init();
-  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
+  HAL_UART_Receive_DMA(&huart1,gT_rx1buff.ucha_rx_80,80);//接收DMA串口4，空闲中断方式接收
 
   /* USER CODE END 2 */
 
@@ -122,9 +119,10 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    HAL_Delay(1000);
-    HAL_UART_Transmit_DMA(&huart1, sent_uart1 ,sizeof(sent_uart1));
+
     /* USER CODE BEGIN 3 */
+      HAL_Delay(1000);
+      vFN_UserTx1Analy_Pro();
   }
   /* USER CODE END 3 */
 }
@@ -165,9 +163,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

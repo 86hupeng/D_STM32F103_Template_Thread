@@ -11,8 +11,8 @@ ThreadTaskTimeTypedef* 	gpT_threadpidrun = NULL; 	//当前运行线程
 
 SystemStatusTypedef gT_carstatus = {0}; 			//小车所有参数，状态及设备的控制结构体
 
-SysRunTimeHumanTypedef  gT_sysnowruntime,gT_systatolruntime;
-SysRunTimeMachineTypedef    gT_sysruntime; 
+SysRunTimeP_T   gT_sysnowruntime,gT_systatolruntime;
+SysRunTimeM_T   gT_sysrun_mtime; 
 
 uint32_t gui_threadstarttime = 0; 					//线程启动时间
 uint8_t guch_threadnum = 0;							//记录线程数量
@@ -121,14 +121,14 @@ void vFN_SysThreadsRun(void)
 {
 	int i = 0;
 	uint8_t len = guch_threadnum;			        //线程数量
-	gT_sysruntime.ui_usloopfirstcount = vFN_SystemReadTimeNow();//循环起始时间记录,单位是us
+	gT_sysrun_mtime.ui_us_loop_first_count = vFN_SystemReadTimeNow();//循环起始时间记录,单位是us
 	for (i = 0; i < len; i++) 
 	{		
 		if(gpT_threadpids[i].b1_enable)	            //确认线程是开启的
 		{
 			if(gpT_threadpids[i].vFN_Thread != NULL)//确认线程非空
 			{
-				gT_sysruntime.ui_usthreadfirstcount =  vFN_SystemReadTimeNow();	//线程启动时间记录,单位是us
+				gT_sysrun_mtime.ui_us_thread_first_count =  vFN_SystemReadTimeNow();	//线程启动时间记录,单位是us
 				if(gpT_threadpids[i].ui_targettime != 0)			//大于0,非实时线程 
 				{ 
 					if(gpT_threadpids[i].ui_timecount >= gpT_threadpids[i].ui_targettime)//判断线程计数时间是否到 设定触发时间
@@ -143,7 +143,7 @@ void vFN_SysThreadsRun(void)
 					gpT_threadpidrun = &gpT_threadpids[i];		    //记录当前运行线程地址
 					gpT_threadpids[i].vFN_Thread();				    //执行优先级最高的任务，不用判断计数，此种线程尽量少
 				}
-				gpT_threadpids[i].ui_threadruntime = vFN_SystemReadTimeNow()-gT_sysruntime.ui_usthreadfirstcount; //计算当前线程运行时间,单位是us
+				gpT_threadpids[i].ui_threadruntime = vFN_SystemReadTimeNow() - gT_sysrun_mtime.ui_us_thread_first_count; //计算当前线程运行时间,单位是us
 			}
 		}
 	}
@@ -156,12 +156,14 @@ void vFN_SysThreadsRun(void)
               SysTick->VAL，系统滴答计数器值，72000 --> 0,  
 * 输入参数   :
 * 输出参数   :
-* 返回值     :uch_uscount 当前us时间
+* 返回值     :uch_uscount 当前us时间，最大4294S=1.1小时
 ****************************************************************************************/
 uint32_t vFN_SystemReadTimeNow(void)
 {
-    uint32_t mui_uscount=0;
-    mui_uscount = HAL_GetTick() + (72000 - SysTick->VAL)/72;        //ms+us 时间
+    uint32_t mui_uscount=0,mui_mscount=0;
+    mui_mscount = HAL_GetTick();
+    mui_uscount = (72000 - SysTick->VAL)/72;        //ms+us 时间
+    mui_mscount = 1000*mui_mscount;
     return  mui_uscount; 
 }
 

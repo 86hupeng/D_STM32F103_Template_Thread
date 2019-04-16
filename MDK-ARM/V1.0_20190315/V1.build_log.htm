@@ -3,49 +3,95 @@
 <pre>
 <h1>礦ision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: μVision V5.16a
-Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+IDE-Version: μVision V5.27.1.0
+Copyright (C) 2019 ARM Ltd and ARM Germany GmbH. All rights reserved.
 License Information: h hupeng, p, LIC=S5ISB-20TJS-XC7J0-BJXZB-4BUK4-7HESU
  
 Tool Versions:
-Toolchain:       MDK-ARM Professional  Version: 5.16a
+Toolchain:       MDK-ARM Professional  Version: 5.27.1.0
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.06 (build 20)
-Assembler:       Armasm.exe V5.06 (build 20)
-Linker/Locator:  ArmLink.exe V5.06 (build 20)
-Library Manager: ArmAr.exe V5.06 (build 20)
-Hex Converter:   FromElf.exe V5.06 (build 20)
-CPU DLL:         SARMCM3.DLL V5.16a
-Dialog DLL:      DCM.DLL V1.13.2.0
-Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.17.0
-Dialog DLL:      TCM.DLL V1.14.5.0
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.27.1.0
+Dialog DLL:      DCM.DLL V1.17.2.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.6.0
+Dialog DLL:      TCM.DLL V1.36.1.0
  
 <h2>Project:</h2>
 C:\Keil_Test\TEST\STM32F103-THREAD\MDK-ARM\V1.0_20190315.uvprojx
-Project File Date:  04/04/2019
+Project File Date:  04/15/2019
 
 <h2>Output:</h2>
-*** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'V1.0_20190315'
-"V1.0_20190315\V1.0_20190315" - 0 Error(s), 0 Warning(s).
+compiling w5500_conf.c...
+..\User\w5500_conf.c(54): error:  #20: identifier "GPIOF" is undefined
+    HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN,GPIO_PIN_RESET);
+..\User\w5500_conf.c(155): warning:  #223-D: function "__HAL_RCC_SPI3_CLK_ENABLE" declared implicitly
+    WIZ_SPIx_RCC_CLK_ENABLE();
+..\User\w5500_conf.c(157): warning:  #223-D: function "__HAL_RCC_GPIOF_CLK_ENABLE" declared implicitly
+    WIZ_SPIx_SCS_CLK_ENABLE();
+..\User\w5500_conf.c(171): error:  #20: identifier "GPIOF" is undefined
+    HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_SET);
+..\User\w5500_conf.c(179): error:  #20: identifier "SPI3" is undefined
+    hspi_w5500.Instance = WIZ_SPIx;
+..\User\w5500_conf.c(215): error:  #20: identifier "GPIOF" is undefined
+  	  HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_RESET);
+..\User\w5500_conf.c(219): error:  #20: identifier "GPIOF" is undefined
+  	  HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_SET);
+..\User\w5500_conf.c(303): error:  #147-D: declaration is incompatible with "uint16 unFN_W5500WriteBuf(uint32, uint8 *, uint16)"  (declared at line 101 of "..\User\w5500_conf.h")
+  uint16_t unFN_W5500WriteBuf(uint32_t mui_addr,uint8_t* much_buf,uint16_t mun_len)
+..\User\w5500_conf.c(327): error:  #147-D: declaration is incompatible with "uint16 unFN_W5500ReadBuf(uint32, uint8 *, uint16)"  (declared at line 102 of "..\User\w5500_conf.h")
+  uint16 unFN_W5500ReadBuf(uint32_t mui_addr,uint8_t* much_buf,uint16_t mun_len)
+..\User\w5500_conf.c(352): warning:  #223-D: function "EEPROM_WriteBytes" declared implicitly
+  	EEPROM_WriteBytes(ConfigMsg.mac,dAddr,(uint8)EEPROM_MSG_LEN);				
+..\User\w5500_conf.c(363): warning:  #223-D: function "EEPROM_CheckOk" declared implicitly
+    EEPROM_CheckOk();
+..\User\w5500_conf.c(364): warning:  #223-D: function "EEPROM_ReadBytes" declared implicitly
+  	EEPROM_ReadBytes(EEPROM_MSG.mac,0,EEPROM_MSG_LEN);
+..\User\w5500_conf.c(375): warning:  #223-D: function "GENERAL_TIMx_Init" declared implicitly
+  	GENERAL_TIMx_Init();		/* TIM2开始计时 */
+..\User\w5500_conf.c(377): error:  #20: identifier "htimx" is undefined
+    HAL_TIM_Base_Start_IT(&htimx);
+..\User\w5500_conf.c: 6 warnings, 8 errors
+compiling socket.c...
+compiling utility.c...
+compiling tcp_demo.c...
+..\User\tcp_demo.c(41): warning:  #223-D: function "uchFN_W5500" declared implicitly
+  			if(uchFN_W5500(SOCK_TCPS) & Sn_IR_CON)
+..\User\tcp_demo.c(81): warning:  #223-D: function "uchFN_W5500" declared implicitly
+  			if(uchFN_W5500(SOCK_TCPC) & Sn_IR_CON)
+..\User\tcp_demo.c: 2 warnings, 0 errors
+compiling dhcp.c...
+compiling w5500.c...
+"V1.0_20190315\V1.0_20190315" - 8 Error(s), 8 Warning(s).
 
 <h2>Software Packages used:</h2>
 
 Package Vendor: ARM
-                http://www.keil.com/pack/ARM.CMSIS.5.4.0.pack
-                ARM::CMSIS:CORE:5.1.2
+                http://www.keil.com/pack/ARM.CMSIS.5.5.1.pack
+                ARM.CMSIS.5.5.1
                 CMSIS (Cortex Microcontroller Software Interface Standard)
-   * Component: CORE Version: 5.1.2
+   * Component: CORE Version: 5.2.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F1xx_DFP.2.3.0.pack
+                Keil.STM32F1xx_DFP.2.3.0
+                STMicroelectronics STM32F1 Series Device Support, Drivers and Examples
 
 <h2>Collection of Component include folders:</h2>
-  C:\Keil_Test\TEST\STM32F103-THREAD\MDK-ARM\RTE
-  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include
+  .\RTE\_V1.0_20190315
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.5.1\CMSIS\Core\Include
   C:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE:5.1.2
-Build Time Elapsed:  00:00:02
+   * Component: ARM::CMSIS:CORE:5.2.0
+Target not created.
+Build Time Elapsed:  00:00:06
 </pre>
 </body>
 </html>

@@ -1,9 +1,5 @@
 v1.0_20190315\user_usart.o: ..\User\user_usart.c
 v1.0_20190315\user_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-v1.0_20190315\user_usart.o: ..\User\User_usart.h
-v1.0_20190315\user_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-v1.0_20190315\user_usart.o: ../Inc/gpio.h
-v1.0_20190315\user_usart.o: ../Inc/main.h
 v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 v1.0_20190315\user_usart.o: ../Inc/stm32f1xx_hal_conf.h
 v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h
@@ -11,6 +7,7 @@ v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_de
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Include/core_cm3.h
+v1.0_20190315\user_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Include/core_cmInstr.h
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 v1.0_20190315\user_usart.o: ../Drivers/CMSIS/Include/core_cmFunc.h
@@ -33,7 +30,8 @@ v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_sp
 v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h
-v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h
-v1.0_20190315\user_usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
+v1.0_20190315\user_usart.o: ../Inc/gpio.h
+v1.0_20190315\user_usart.o: ../Inc/main.h
 v1.0_20190315\user_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+v1.0_20190315\user_usart.o: ..\User\norm_task.h
+v1.0_20190315\user_usart.o: ..\User\User_usart.h

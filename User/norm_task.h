@@ -11,15 +11,15 @@
     函数类型:       _Sys                系统任务函数
                     _Mod
                     _Pro                数据处理函数，算法，数据处理等等
-                    _Get，_Write        数据控制流，获取，读取
-                    _Set，_Read         数据控制流，设置，输出
+                    _Get，_Read         数据控制流，获取，读取
+                    _Set，_Write        数据控制流，设置，输出
                     _IO，               IO控制流，输入，输出
                     
     全局变量		g
     静态变量		s
     成员变量		m
  
-    常量			c
+    常量			C
     元素常量		e
   
     结构体变量		T_
@@ -79,19 +79,18 @@ typedef struct {
   	uint8_t uch_secondcount; 			//运行秒
    	uint16_t un_mscount; 			    //运行ms
    	uint16_t un_uscount; 			    //运行us
-    
-} SysRunTimeHumanTypedef;
+} SysRunTimeP_T;
 
 // 时间相关-结构体-(总计数/当前计数，)
 typedef struct {
-   	uint32_t ui_mscount; 			    //运行ms
-   	uint32_t ui_uscount; 			    //运行us
+   	uint32_t ui_ms_count; 			    //运行ms
+   	uint32_t ui_us_count; 			    //运行us
     
-    uint32_t ui_usloopfirstcount; 	    //运行第一次us
-    uint32_t ui_usthreadfirstcount; 	//运行第一次us
+    uint32_t ui_us_loop_first_count; 	//运行第一次us
+    uint32_t ui_us_thread_first_count; 	//运行第一次us
    
-    uint32_t ui_usthreadloopcount;      //记录一次循环循环线程时间
-} SysRunTimeMachineTypedef;
+    uint32_t ui_us_thread_loop_count;      //记录一次循环循环线程时间
+} SysRunTimeM_T;
 
 //// 系统运行状态相关-结构体,需要放到EEPROM中的数据
 //typedef struct {
@@ -170,6 +169,7 @@ typedef struct
 }SystemStatusTypedef;
 
 extern SystemStatusTypedef CarStatus;	//小车所有参数，状态及设备的控制结构体
+extern SysRunTimeM_T   gT_sysrun_mtime; //系统时间统计
 
 void vFN_ThradTaskRemarks(void); 		//任务时间分配控制
 void vFN_ThradTaskProcess(void);		//任务处理函数
