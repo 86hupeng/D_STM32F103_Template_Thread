@@ -35,3 +35,4 @@ v1.0_20190315\user_usart.o: ../Inc/main.h
 v1.0_20190315\user_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 v1.0_20190315\user_usart.o: ..\User\norm_task.h
 v1.0_20190315\user_usart.o: ..\User\User_usart.h
+v1.0_20190315\user_usart.o: ../Inc/usart.h

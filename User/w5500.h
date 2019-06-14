@@ -247,47 +247,34 @@
 *********************************************************/
 
 void vFN_iinchip_init(void); // reset iinchip
-void socket_buf_init(uint8 * tx_size, uint8 * rx_size); // setting tx/rx buf size
-uint8 getISR(uint8 s);
-void putISR(uint8 s, uint8 val);
-uint16 unFN_getIINCHIP_RxMAX(uint8 s);
-uint16 unFN_getIINCHIP_TxMAX(uint8 s);
-void vFN_W5500setMR(uint8 val);
-void vFN_W5500setRTR(uint16 timeout); // set retry duration for data transmission, connection, closing ...
-void vFN_W5500setRCR(uint8 retry); // set retry count (above the value, assert timeout interrupt)
-void vFN_W5500clearIR(uint8 mask); // clear interrupt
-uint8 uchFN_W5500getIR( void );
-void vFN_W5500setSn_MSS(SOCKET s, uint16 Sn_MSSR); // set maximum segment size
-uint8 uchFN_W5500getSn_IR(SOCKET s); // get socket interrupt status
-uint8 uchFN_W5500getSn_SR(SOCKET s); // get socket status
-uint16 unFN_W5500getSn_TX_FSR(SOCKET s); // get socket TX free buf size
-uint16 unFN_W5500getSn_RX_RSR(SOCKET s); // get socket RX recv buf size
-void vFN_W5500setSn_TTL(SOCKET s, uint8 ttl);
-void vFN_W5500Tx_Pro(SOCKET s, uint8 *wizdata, uint16 len);
-void vFN_W5500Rx_Pro(SOCKET s, uint8 *wizdata, uint16 len);
+void vFN_W5500SocketBufInit(uint8_t * tx_size, uint8_t * rx_size); // setting tx/rx buf size
+uint8_t getISR(uint8_t s);
+void putISR(uint8_t s, uint8_t val);
+uint8_t unFN_getSockRxSize(uint8_t s);
+uint8_t unFN_getSockTxSize(uint8_t s);
+void vFN_W5500setMR(uint8_t val);
+void vFN_W5500setRTR(uint16_t timeout); // set retry duration for data transmission, connection, closing ...
+void vFN_W5500setRCR(uint8_t retry); // set retry count (above the value, assert timeout interrupt)
+void vFN_W5500clearIR(uint8_t mask); // clear interrupt
+uint8_t uchFN_W5500getIR( void );
+void vFN_W5500setSn_MSS(SOCKET s, uint16_t Sn_MSSR); // set maximum segment size
+uint8_t uchFN_W5500getSn_IR(SOCKET s); // get socket interrupt status
+uint8_t uchFN_W5500getSn_SR(SOCKET s); // get socket status
+uint16_t unFN_W5500getSn_TX_FSR(SOCKET s); // get socket TX free buf size
+uint16_t unFN_W5500getSn_RX_RSR(SOCKET s); // get socket RX recv buf size
+void vFN_W5500setSn_TTL(SOCKET s, uint8_t ttl);
+void vFN_W5500Tx_Pro(SOCKET s, uint8_t *much_data, uint16_t mun_len);
+void vFN_W5500Rx_Pro(SOCKET s, uint8_t *much_data, uint16_t mun_len);
 
-void vFN_W5500setGAR(uint8 * addr); // set gateway address
-void vFN_W5500setSUBR(uint8 * addr); // set subnet mask address
-void vFN_W5500setSHAR(uint8 * addr); // set local MAC address
-void vFN_W5500setSIPR(uint8 * addr); // set local IP address
-void vFN_W5500getGAR(uint8 * addr);
-void vFN_W5500getSUBR(uint8 * addr);
-void vFN_W5500getSHAR(uint8 * addr);
-void vFN_W5500getSIPR(uint8 * addr);
+void vFN_W5500setGAR(uint8_t * addr); // set gateway address
+void vFN_W5500setSUBR(uint8_t * addr); // set subnet mask address
+void vFN_W5500setSHAR(uint8_t * addr); // set local MAC address
+void vFN_W5500setSIPR(uint8_t * addr); // set local IP address
+void vFN_W5500getGAR(uint8_t * addr);
+void vFN_W5500getSUBR(uint8_t * addr);
+void vFN_W5500getSHAR(uint8_t * addr);
+void vFN_W5500getSIPR(uint8_t * addr);
 
-void vFN_W5500setSn_IR(uint8 s, uint8 val);
-void Reset_W5500(void);
-
-
-/**
- @brief WIZCHIP_OFFSET_INC on IINCHIP_READ/WRITE
- * case1.
- *  IINCHIP_WRITE(RTR0,val);
- *  IINCHIP_WRITE(RTR1,val);
- * case1. 
- *  IINCHIP_WRITE(RTR0,val);
- *  IINCHIP_WRITE(WIZCHIP_OFFSET_INC(RTR0,1)); 
- */
-//#define WIZCHIP_OFFSET_INC(ADDR, N)    (ADDR + (N<<8)) //< Increase offset address
+void vFN_W5500setSn_IR(uint8_t s, uint8_t val);
 
 #endif

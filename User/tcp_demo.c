@@ -1,10 +1,10 @@
 /**
 ************************************************************************************************
 * @file   		tcp_demo.c
-* @author  		WIZnet Software Team 
+* @author  		èƒ¡é¹ 
 * @version 		V1.0
-* @date    		2015-02-14
-* @brief   		TCP ÑİÊ¾º¯Êı
+* @date    		2019-04-14
+* @brief   		TCP åŠŸèƒ½å‡½æ•°
 * @attention  
 ************************************************************************************************
 **/
@@ -16,87 +16,86 @@
 #include "w5500.h"
 #include "socket.h"
 
-uint8 buff[2048];				                              	         /*¶¨ÒåÒ»¸ö2KBµÄ»º´æ*/
+uint8_t buff[2048];//ç¼“å­˜
 
 /**
-*@brief		TCP Server»Ø»·ÑİÊ¾º¯Êı¡£
-*@param		ÎŞ
-*@return	ÎŞ
+*@brief		TCP Server å›ç¯å‡½æ•°
+*@param		æ— 
+*@return	æ— 
 */
-void do_tcp_server(void)
+void vFN_W5500_TCP_Server(void)
 {	
-	uint16 len=0;  
-	switch(uchFN_W5500getSn_SR(SOCK_TCPS))											            	/*»ñÈ¡socketµÄ×´Ì¬*/
+	uint16_t mun_len=0;  
+	switch(uchFN_W5500getSn_SR(SOCK_TCPS))// è·å–socketçŠ¶æ€
 	{
-		case SOCK_CLOSED:													                  /*socket´¦ÓÚ¹Ø±Õ×´Ì¬*/
-			socket(SOCK_TCPS ,Sn_MR_TCP,local_port,Sn_MR_ND);	        /*´ò¿ªsocket*/
-		  break;     
+		case SOCK_CLOSED://socketå¤„äºå…³é—­çŠ¶æ€
+                uchFN_W5500SocketInit(SOCK_TCPS ,Sn_MR_TCP,gun_local_port,Sn_MR_ND);//æ‰“å¼€socketï¼Œå°†å¤„äºå·²ç»åˆå§‹åŒ–çŠ¶æ€
+                break;     
     
-		case SOCK_INIT:														                  /*socketÒÑ³õÊ¼»¯×´Ì¬*/
-			listen(SOCK_TCPS);												                /*socket½¨Á¢¼àÌı*/
-		  break;
+		case SOCK_INIT://socketå¤„äºå·²ç»åˆå§‹åŒ–çŠ¶æ€
+                uchFN_W5500SocketListen(SOCK_TCPS);//socketå»ºç«‹ç›‘å¬ï¼Œ
+                break;
 		
-		case SOCK_ESTABLISHED:												              /*socket´¦ÓÚÁ¬½Ó½¨Á¢×´Ì¬*/
+		case SOCK_ESTABLISHED://socketå¤„äºè¿æ¥å»ºç«‹çŠ¶æ€ï¼Œ
 		
-			if(uchFN_W5500(SOCK_TCPS) & Sn_IR_CON)
-			{
-				vFN_W5500setSn_IR(SOCK_TCPS, Sn_IR_CON);								          /*Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾Î»*/
-			}
-			len=unFN_W5500getSn_RX_RSR(SOCK_TCPS);									            /*¶¨ÒålenÎªÒÑ½ÓÊÕÊı¾İµÄ³¤¶È*/
-			if(len>0)
-			{
-				recv(SOCK_TCPS,buff,len);								              	/*½ÓÊÕÀ´×ÔClientµÄÊı¾İ*/
-				buff[len]=0x00; 											                  /*Ìí¼Ó×Ö·û´®½áÊø·û*/
-				printf("%s\r\n",buff);
-				send(SOCK_TCPS,buff,len);									              /*ÏòClient·¢ËÍÊı¾İ*/
-		  }
-		  break;
+                if(uchFN_W5500getSn_IR(SOCK_TCPS) & Sn_IR_CON)
+                {
+                    vFN_W5500setSn_IR(SOCK_TCPS, Sn_IR_CON);//æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—ï¼Œ
+                }
+                mun_len = unFN_W5500getSn_RX_RSR(SOCK_TCPS);//è·å–å·²æ¥æ”¶æ•°æ®çš„é•¿åº¦
+                if(mun_len>0)
+                {
+                    unFN_W5500SocketRecv(SOCK_TCPS,buff,mun_len);//æ¥ç½‘ç»œæ”¶æ•°æ®
+                    buff[mun_len]=0x00;//æ·»åŠ å­—ç¬¦ä¸²ç»“æŸç¬¦
+                    // printf("%s\r\n",buff); è¾“å‡ºåˆ°ä¸²å£
+                    unFN_W5500SocketSend(SOCK_TCPS,buff,mun_len);//å‘ç½‘ç»œå‘é€æ•°æ®
+                }
+                break;
 		
-		case SOCK_CLOSE_WAIT:												                /*socket´¦ÓÚµÈ´ı¹Ø±Õ×´Ì¬*/
-			close(SOCK_TCPS);
-		  break;
+		case SOCK_CLOSE_WAIT://å¤„äºç­‰å¾…å…³é—­çŠ¶æ€
+                vFN_W5500_SocketClose(SOCK_TCPS);
+                break;
 	}
 }
 
-/**
-*@brief		TCP Client»Ø»·ÑİÊ¾º¯Êı¡£
-*@param		ÎŞ
-*@return	ÎŞ
+/**         éœ€è¦å¢åŠ ç½‘çº¿æ’å…¥æ£€æµ‹
+*@brief		TCP Clientå›ç¯å‡½æ•°
+*@param		æ— 
+*@return	æ— 
 */
-void do_tcp_client(void)
+void vFN_W5500_TCP_Client(void)
 {	
-   uint16 len=0;	
-
-	switch(uchFN_W5500getSn_SR(SOCK_TCPC))								  				         /*»ñÈ¡socketµÄ×´Ì¬*/
+    uint16_t mun_len=0;	
+    static uint8_t much_return=0;
+	switch(uchFN_W5500getSn_SR(SOCK_TCPC))// è·å–socketçŠ¶æ€ï¼ŒSOCK_TCPC=socketç«¯å£å·
 	{
-		case SOCK_CLOSED:											        		         /*socket´¦ÓÚ¹Ø±Õ×´Ì¬*/
-			socket(SOCK_TCPC,Sn_MR_TCP,local_port++,Sn_MR_ND);
-		  break;
+		case SOCK_CLOSED://socketå¤„äºå…³é—­çŠ¶æ€
+                uchFN_W5500SocketInit(SOCK_TCPC,Sn_MR_TCP,gun_local_port++,Sn_MR_ND);//æ‰“å¼€socketï¼Œå°†å¤„äºå·²ç»åˆå§‹åŒ–çŠ¶æ€ - Sn_CR_OPEN
+                break;
 		
-		case SOCK_INIT:													        	         /*socket´¦ÓÚ³õÊ¼»¯×´Ì¬*/
-			connect(SOCK_TCPC,remote_ip,remote_port);                /*socketÁ¬½Ó·şÎñÆ÷*/ 
-		  break;
+		case SOCK_INIT://socketå¤„äºå·²ç»åˆå§‹åŒ–çŠ¶æ€
+                uchFN_W5500SocketConnect(SOCK_TCPC,gucha_remote_ip_4,gun_remote_port);//socketè¿æ¥æœåŠ¡å™¨ï¼Œ socketå· + IPåœ°å€ + ç«¯å£
+                break;
 		
-		case SOCK_ESTABLISHED: 												             /*socket´¦ÓÚÁ¬½Ó½¨Á¢×´Ì¬*/
-			if(uchFN_W5500(SOCK_TCPC) & Sn_IR_CON)
-			{
-				vFN_W5500setSn_IR(SOCK_TCPC, Sn_IR_CON); 							         /*Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾Î»*/
-			}
-		
-			len=unFN_W5500getSn_RX_RSR(SOCK_TCPC); 								  	         /*¶¨ÒålenÎªÒÑ½ÓÊÕÊı¾İµÄ³¤¶È*/
-			if(len>0)
-			{
-				recv(SOCK_TCPC,buff,len); 							   		         /*½ÓÊÕÀ´×ÔServerµÄÊı¾İ*/
-				buff[len]=0x00;  											                 /*Ìí¼Ó×Ö·û´®½áÊø·û*/
-				printf("%s\r\n",buff);
-				send(SOCK_TCPC,buff,len);								     	         /*ÏòServer·¢ËÍÊı¾İ*/
-			}		  
-		  break;
+		case SOCK_ESTABLISHED://socketå¤„äºè¿æ¥å»ºç«‹çŠ¶æ€ï¼Œ
+                if(uchFN_W5500getSn_IR(SOCK_TCPC) & Sn_IR_CON)
+                {
+                    vFN_W5500setSn_IR(SOCK_TCPC, Sn_IR_CON);//æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—ï¼Œ
+                }
+            
+                mun_len = unFN_W5500getSn_RX_RSR(SOCK_TCPC);//è·å–å·²æ¥æ”¶æ•°æ®çš„é•¿åº¦
+                if(mun_len>0)
+                {
+                    unFN_W5500SocketRecv(SOCK_TCPC,buff,mun_len);//æ¥ç½‘ç»œæ”¶æ•°æ®
+                    buff[mun_len++] = ++much_return;//æ·»åŠ è®¡æ•°
+                    buff[mun_len] = 0x00;//æ·»åŠ å­—ç¬¦ä¸²ç»“æŸç¬¦
+                    unFN_W5500SocketSend(SOCK_TCPC,buff,mun_len);//å‘ç½‘ç»œå‘é€æ•°æ®
+                }		  
+                break;
 			
-		case SOCK_CLOSE_WAIT: 											    	         /*socket´¦ÓÚµÈ´ı¹Ø±Õ×´Ì¬*/
-			close(SOCK_TCPC);
-		  break;
-
+		case SOCK_CLOSE_WAIT://å¤„äºç­‰å¾…å…³é—­çŠ¶æ€
+                vFN_W5500_SocketClose(SOCK_TCPC);
+                break;
 	}
 }
 

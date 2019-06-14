@@ -3,7 +3,8 @@
 #include "stdio.h"
 
 #define DEVICE_ID "W5500"
-typedef struct _DHCP_GET
+
+typedef struct
 {
   uint8 mac[6];
   uint8 lip[4];
@@ -12,7 +13,7 @@ typedef struct _DHCP_GET
   uint8 dns[4];	
 }DHCP_Get;
 
-extern uint32  dhcp_time;
+//extern uint32  dhcp_time;
 extern DHCP_Get DHCP_GET;
 #define EXTERN_DHCP_MAC    DHCP_GET.mac
 #define EXTERN_DHCP_SN     DHCP_GET.sub

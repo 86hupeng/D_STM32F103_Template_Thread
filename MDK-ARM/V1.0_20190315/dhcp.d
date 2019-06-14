@@ -35,5 +35,4 @@ v1.0_20190315\dhcp.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 v1.0_20190315\dhcp.o: ..\User\types.h
 v1.0_20190315\dhcp.o: ..\User\socket.h
 v1.0_20190315\dhcp.o: ..\User\dhcp.h
-v1.0_20190315\dhcp.o: ..\User\utility.h
 v1.0_20190315\dhcp.o: ..\User\w5500_conf.h

@@ -5,13 +5,6 @@
 #include "types.h"
 
 
-
-void systick_init (uint8 SYSCLK);
-void delay_s( uint32 time_s );
-void delay_us(uint32 time_us);
-void delay_ms(uint32 time_ms);
-
-
 uint16 atoi16(char* str,uint16 base); 			/* Convert a string to integer number */
 uint32 atoi32(char* str,uint16 base); 			/* Convert a string to integer number */
 void itoa(uint16 n,uint8* str, uint8 len);

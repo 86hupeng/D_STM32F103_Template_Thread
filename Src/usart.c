@@ -155,7 +155,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
     __HAL_UART_CLEAR_IDLEFLAG(&huart1);//清零空闲中断标志
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);//使能huart4 空闲中断  
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);//使能huart1 空闲中断  
   /* USER CODE END USART1_MspInit 1 */
   }
   else if(uartHandle->Instance==USART2)

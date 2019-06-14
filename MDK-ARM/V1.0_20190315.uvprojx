@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../User</IncludePath>
+              <IncludePath>../Inc; ../Drivers/STM32F1xx_HAL_Driver/Inc; ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy; ../Drivers/CMSIS/Device/ST/STM32F1xx/Include; ../Drivers/CMSIS/Include; ../User</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -583,11 +583,6 @@
           <GroupName>User_net</GroupName>
           <Files>
             <File>
-              <FileName>dhcp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\dhcp.c</FilePath>
-            </File>
-            <File>
               <FileName>socket.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\socket.c</FilePath>
@@ -596,11 +591,6 @@
               <FileName>tcp_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\tcp_demo.c</FilePath>
-            </File>
-            <File>
-              <FileName>utility.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\utility.c</FilePath>
             </File>
             <File>
               <FileName>w5500.c</FileName>

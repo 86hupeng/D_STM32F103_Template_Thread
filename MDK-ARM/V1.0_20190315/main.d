@@ -40,3 +40,8 @@ v1.0_20190315\main.o: ../Inc/tim.h
 v1.0_20190315\main.o: ../Inc/usart.h
 v1.0_20190315\main.o: ../Inc/gpio.h
 v1.0_20190315\main.o: ../User/User_usart.h
+v1.0_20190315\main.o: ../User/w5500_conf.h
+v1.0_20190315\main.o: ../User/types.h
+v1.0_20190315\main.o: ../User/socket.h
+v1.0_20190315\main.o: ../User/w5500.h
+v1.0_20190315\main.o: ../User/tcp_demo.h

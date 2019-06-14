@@ -32,13 +32,17 @@
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
-
+#define W5500_SPI1CS_ON_GPIO_LOW    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET)
+#define W5500_SPI1CS_OFF_GPIO_HIGH  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET)
+#define W5500_RESET_ON_GPIO_LOW     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET)
+#define W5500_RESET_OFF_GPIO_HIGH   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET)
 /* USER CODE END Private defines */
 
 void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void vFN_SPI1GPIO_Init(void);
+void vFN_W5500GPIO_Init(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

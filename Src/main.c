@@ -32,6 +32,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "User_usart.h"
+#include "w5500_conf.h"
+#include "socket.h"
+#include "w5500.h"
+#include "tcp_demo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,14 +50,20 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+int Crc16(volatile uint8_t *ptr, int count);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 
-
+void mainP(uint8_t * muchp_addr);
+uint8_t ABC[4]={0X12 ,0X34 ,0X56 ,0X78 };
+uint8_t *ABP = ABC;
+uint8_t gucha_macrx_6[6];
+uint32_t gui_mac_data=0;
+uint16_t gun_mac_data=0;
+uint8_t guch_mac_data=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,6 +77,8 @@ uint8_t sent_uart1[]="this is a test for uart1\r\n";
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
+
+extern SPI_HandleTypeDef hspi1;
 /* USER CODE END 0 */
 
 /**
@@ -92,7 +104,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+ // vFN_SPI1GPIO_Init();
+  vFN_W5500GPIO_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -110,20 +123,52 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Receive_DMA(&huart1,gT_rx1buff.ucha_rx_80,80);//接收DMA串口4，空闲中断方式接收
 
+  
+  HAL_UART_Receive_DMA(&huart1,gT_rx1buf.ucha_rx_80,80);//接收DMA串口1，空闲中断方式接�?
+  W5500_SPI1CS_ON_GPIO_LOW;
+  
+  HAL_SPI_Transmit(&hspi1, gT_rx1buf.ucha_rx_80, 1, 10);//发�??1个SPI字节，消除CLK默认低电平的错误
+  W5500_SPI1CS_OFF_GPIO_HIGH;
+  
+  vFN_W5500_Set_IP();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+    while (1)
+    {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      HAL_Delay(1000);
-      vFN_UserTx1Analy_Pro();
-  }
+        
+        HAL_Delay(100);
+        vFN_W5500_TCP_Client();
+//        vFN_UserTx1Analy_Pro();
+//       W5500_SPI1CS_ON_GPIO_LOW;  
+//       HAL_SPI_TransmitReceive(&hspi1, (uint8_t*)Cgch_sys_time.Cchp_data, gT_rx1buf.ucha_rx_80,Cgch_sys_time.Cuch_count, 1000);
+//       W5500_SPI1CS_OFF_GPIO_HIGH;   
+//        mainP(ABC);
+//        HAL_Delay(500);
+//        mainP(ABP);
+        //vFN_W5500setSHAR(gucha_mac_6);//设置MAC地址
+//        vFN_W5500_Write1Baye_IO(SHAR0,0X01);
+//        vFN_W5500_Write1Baye_IO(SHAR0,0X01);
+//        unFN_W5500ReadBuf_IO(SHAR0,gucha_macrx_6,6);
+//        vFN_W5500_Write2Baye_IO(SHAR0,0X0102);
+//        unFN_W5500ReadBuf_IO(SHAR0,gucha_macrx_6,6);
+//        vFN_W5500_Write4Baye_IO(SHAR0,0X01020304);
+//        unFN_W5500ReadBuf_IO(SHAR0,gucha_macrx_6,6);
+//        gui_mac_data = uiFN_W5500_Read4Baye_IO(SHAR0);
+//        vFN_W5500getSHAR(gucha_macrx_6);
+//        guch_mac_data = uchFN_W5500_Read1Baye_IO(SHAR0);
+//        unFN_W5500ReadBuf_IO(SHAR0,gucha_macrx_6,6);
+//        gun_mac_data = unFN_W5500_Read2Baye_IO(SHAR0);
+//        unFN_W5500ReadBuf_IO(SHAR0,gucha_macrx_6,6);
+
+        
+        
+    }
   /* USER CODE END 3 */
 }
 

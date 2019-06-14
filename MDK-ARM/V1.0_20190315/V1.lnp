@@ -33,6 +33,10 @@
 "v1.0_20190315\system_stm32f1xx.o"
 "v1.0_20190315\norm_task.o"
 "v1.0_20190315\user_usart.o"
+"v1.0_20190315\socket.o"
+"v1.0_20190315\tcp_demo.o"
+"v1.0_20190315\w5500.o"
+"v1.0_20190315\w5500_conf.o"
 --library_type=microlib --strict --scatter "V1.0_20190315\V1.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

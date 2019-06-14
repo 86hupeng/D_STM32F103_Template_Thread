@@ -18,21 +18,17 @@
 #define SOCK_NTP              7
 //#define NETBIOS_SOCK    6 //在netbios.c已定义
 
-extern uint8 socket(SOCKET s, uint8 protocol, uint16 port, uint8 flag); // Opens a socket(TCP or UDP or IP_RAW mode)
-extern void close(SOCKET s); // Close socket
-extern uint8 connect(SOCKET s, uint8 * addr, uint16 port); // Establish TCP connection (Active connection)
-extern void disconnect(SOCKET s); // disconnect the connection
-extern uint8 listen(SOCKET s);	// Establish TCP connection (Passive connection)
-extern uint16 send(SOCKET s, const uint8 * buf, uint16 len); // Send data (TCP)
-extern uint16 recv(SOCKET s, uint8 * buf, uint16 len);	// Receive data (TCP)
-extern uint16 sendto(SOCKET s, const uint8 * buf, uint16 len, uint8 * addr, uint16 port); // Send data (UDP/IP RAW)
-extern uint16 recvfrom(SOCKET s, uint8 * buf, uint16 len, uint8 * addr, uint16  *port); // Receive data (UDP/IP RAW)
+extern uint8_t uchFN_W5500SocketInit(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag); // Opens a socket(TCP or UDP or IP_RAW mode)
+extern void vFN_W5500_SocketClose(SOCKET s); // Close socket
+extern uint8_t uchFN_W5500SocketConnect(SOCKET s, uint8_t * addr, uint16_t port); // Establish TCP connection (Active connection)
+extern void vFN_W5500SocketDisconnect(SOCKET s); // disconnect the connection
+extern uint8_t uchFN_W5500SocketListen(SOCKET s);	// Establish TCP connection (Passive connection)
+extern uint16_t unFN_W5500SocketSend(SOCKET s, const uint8_t * buf, uint16_t len); // Send data (TCP)
+extern uint16_t unFN_W5500SocketRecv(SOCKET s, uint8_t * buf, uint16_t len);	// Receive data (TCP)
+extern uint16_t unFN_W5500SocketSendUDP(SOCKET s, const uint8_t * buf, uint16_t len, uint8_t * addr, uint16_t port); // Send data (UDP/IP RAW)
+extern uint16_t unFN_W5500SocketRecvfrom(SOCKET s, uint8_t * buf, uint16_t len, uint8_t * addr, uint16_t  *port); // Receive data (UDP/IP RAW)
 
-#ifdef __MACRAW__
-void macraw_open(void);
-uint16 macraw_send( const uint8 * buf, uint16 len ); //Send data (MACRAW)
-uint16 macraw_recv( uint8 * buf, uint16 len ); //Recv data (MACRAW)
-#endif
+
 
 #endif
 /* _SOCKET_H_ */

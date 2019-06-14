@@ -60,7 +60,7 @@ enum USE_UART_STATUS_TYPE
 
 extern  StringData_T Cgch_sys_time ;
 extern  StringData_T Cgch_sys_time ;
-extern  RxBuff_T gT_rx1buff;
+extern  RxBuff_T gT_rx1buf;
 
 void  User_Rx1_FrameEnd (void);
 void  User_Rx1_Analysis (char * Date);

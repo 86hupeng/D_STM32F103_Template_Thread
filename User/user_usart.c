@@ -6,21 +6,17 @@
 #include <string.h>
 #include "norm_task.h"
 #include "User_usart.h"
-
+#include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
-extern	UART_HandleTypeDef huart1;
-extern	UART_HandleTypeDef huart2;
-extern	UART_HandleTypeDef huart3;
 
 extern 	TIM_HandleTypeDef htim2;
 extern	TIM_HandleTypeDef htim3;
 extern	TIM_HandleTypeDef htim4;
 
 StringData_T  Cgch_sys_time = {11, "sys time:\r\n"};  //系统时间
-TxBuff_T  gT_Tx1Buff;
-RxBuff_T  gT_rx1buff; 
+TxBuff_T  gT_Tx1Buf;
+RxBuff_T  gT_rx1buf; 
 /* USER CODE END PV */
 
 /**************************************************************************************

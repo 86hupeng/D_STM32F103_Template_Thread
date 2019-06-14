@@ -1,5 +1,6 @@
 v1.0_20190315\utility.o: ..\User\utility.c
-v1.0_20190315\utility.o: ..\User\w5500.h
+v1.0_20190315\utility.o: ..\User\utility.h
+v1.0_20190315\utility.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 v1.0_20190315\utility.o: ../Inc/stm32f1xx_hal_conf.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h
@@ -13,7 +14,6 @@ v1.0_20190315\utility.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 v1.0_20190315\utility.o: ../Drivers/CMSIS/Include/core_cmFunc.h
 v1.0_20190315\utility.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
-v1.0_20190315\utility.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h
@@ -32,7 +32,7 @@ v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 v1.0_20190315\utility.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 v1.0_20190315\utility.o: ..\User\types.h
+v1.0_20190315\utility.o: ..\User\w5500.h
 v1.0_20190315\utility.o: ..\User\w5500_conf.h
-v1.0_20190315\utility.o: ..\User\utility.h
 v1.0_20190315\utility.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 v1.0_20190315\utility.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h

@@ -1,10 +1,10 @@
 /**
 ******************************************************************************
 * @file    		Socket.c
-* @author  		WIZnet Software Team 
+* @author  		胡鹏
 * @version 		V1.0
-* @date    		2015-xx-xx
-* @brief   		Socket�����غ��� 
+* @date    		2019-04-xx
+* @brief   		Socket 相关函数 
 ******************************************************************************
 */
 #include "socket.h"
@@ -14,47 +14,46 @@
 
 /**
 *@brief   This Socket function initialize the channel in perticular mode, 
-					and set the port and wait for W5200 done it.
+            and set the port and wait for W5200 done it.
 *@param		s: socket number.
 *@param		protocol: The socket to chose.
 *@param		port:The port to bind.
 *@param		flag: Set some bit of MR,such as **< No Delayed Ack(TCP) flag.
 *@return  1 for sucess else 0.
 */
-uint8 socket(SOCKET s, uint8 protocol, uint16 port, uint8 flag)
+uint8_t uchFN_W5500SocketInit(SOCKET s, uint8_t much_protocol, uint16_t mun_port, uint8_t mun_flag)
 {
-   uint8 ret;
-   if (
-        ((protocol&0x0F) == Sn_MR_TCP)    ||
-        ((protocol&0x0F) == Sn_MR_UDP)    ||
-        ((protocol&0x0F) == Sn_MR_IPRAW)  ||
-        ((protocol&0x0F) == Sn_MR_MACRAW) ||
-        ((protocol&0x0F) == Sn_MR_PPPOE)
+   uint8_t much_ret;
+   if ( ((much_protocol&0x0F) == Sn_MR_TCP)    ||
+        ((much_protocol&0x0F) == Sn_MR_UDP)    ||
+        ((much_protocol&0x0F) == Sn_MR_IPRAW)  ||
+        ((much_protocol&0x0F) == Sn_MR_MACRAW) ||
+        ((much_protocol&0x0F) == Sn_MR_PPPOE)
       )
    {
-      close(s);
-      IINCHIP_WRITE(Sn_MR(s) ,protocol | flag);
-      if (port != 0) {
-         IINCHIP_WRITE( Sn_PORT0(s) ,(uint8)((port & 0xff00) >> 8));
-         IINCHIP_WRITE( Sn_PORT1(s) ,(uint8)(port & 0x00ff));
-      } else {
-         local_port++; // if don't set the source port, set local_port number.
-         IINCHIP_WRITE(Sn_PORT0(s) ,(uint8)((local_port & 0xff00) >> 8));
-         IINCHIP_WRITE(Sn_PORT1(s) ,(uint8)(local_port & 0x00ff));
+      vFN_W5500_SocketClose(s);//关闭secket 通道
+      vFN_W5500_Write1Baye_IO(Sn_MR(s) ,much_protocol | mun_flag);//写socket Mode register, W5500控制方式
+      if (mun_port != 0)
+      {
+          vFN_W5500_Write2Baye_IO( Sn_PORT0(s),mun_port);//设置本地端口
       }
-      IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_OPEN); // run sockinit Sn_CR
+      else 
+      {
+          gun_local_port++; // if don't set the source port, set local_port number.
+          vFN_W5500_Write2Baye_IO( Sn_PORT0(s),gun_local_port);
+      }
+      vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_OPEN); // run sockinit Sn_CR，initialize or open socket
 
       /* wait to process the command... */
-      while( IINCHIP_READ(Sn_CR(s)) )
-         ;
+      while( uchFN_W5500_Read1Baye_IO(Sn_CR(s))); // Sn_CR 写成功后改变的是Sn_SR的值，读出来是0; 
       /* ------- */
-      ret = 1;
+      much_ret = 1;
    }
    else
    {
-      ret = 0;
+      much_ret = 0;
    }
-   return ret;
+   return much_ret;
 }
 
 
@@ -63,16 +62,16 @@ uint8 socket(SOCKET s, uint8 protocol, uint16 port, uint8 flag)
 *@param		s: socket number.
 *@return  None
 */
-void close(SOCKET s)
+void vFN_W5500_SocketClose(SOCKET s)
 {
 
-   IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_CLOSE);
+   vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_CLOSE);
 
    /* wait to process the command... */
-   while( IINCHIP_READ(Sn_CR(s) ) )
+   while( uchFN_W5500_Read1Baye_IO(Sn_CR(s) ) )
        ;/* ------- */
    
-	IINCHIP_WRITE( Sn_IR(s) , 0xFF);	 /* all clear */
+	vFN_W5500_Write1Baye_IO( Sn_IR(s) , 0xFF);	 /* all clear */
 }
 
 
@@ -82,23 +81,22 @@ void close(SOCKET s)
 *@param		s: socket number.
 *@return  1 for success else 0.
 */
-uint8 listen(SOCKET s)
+uint8_t uchFN_W5500SocketListen(SOCKET s)
 {
-   uint8 ret;
-   if (IINCHIP_READ( Sn_SR(s) ) == SOCK_INIT)
+   uint8_t much_ret;
+   if (uchFN_W5500_Read1Baye_IO( Sn_SR(s) ) == SOCK_INIT)
    {
-      IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_LISTEN);
+      vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_LISTEN);
       /* wait to process the command... */
-      while( IINCHIP_READ(Sn_CR(s) ) )
-         ;
+      while( uchFN_W5500_Read1Baye_IO(Sn_CR(s)));
       /* ------- */
-      ret = 1;
+      much_ret = 1;
    }
    else
    {
-      ret = 0;
+      much_ret = 0;
    }
-   return ret;
+   return much_ret;
 }
 
 
@@ -110,48 +108,40 @@ uint8 listen(SOCKET s)
 *@param		port: The server IP port to connect
 *@return  1 for success else 0.
 */
-uint8 connect(SOCKET s, uint8 * addr, uint16 port)
+uint8_t uchFN_W5500SocketConnect(SOCKET s, uint8_t * muchp_addr, uint16_t mun_port)
 {
-    uint8 ret;
-    if
-        (
-            ((addr[0] == 0xFF) && (addr[1] == 0xFF) && (addr[2] == 0xFF) && (addr[3] == 0xFF)) ||
-            ((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) ||
-            (port == 0x00)
-        )
+    uint8_t much_ret;
+    if ( *((uint32_t *)&muchp_addr[0]) == 0xFFFFFFFF ||
+         *((uint32_t *)&muchp_addr[0]) == 0U ||
+          (mun_port == 0x00))
     {
-      ret = 0;
+        much_ret = 0;
     }
     else
     {
-        ret = 1;
-        // set destination IP
-        IINCHIP_WRITE( Sn_DIPR0(s), addr[0]);
-        IINCHIP_WRITE( Sn_DIPR1(s), addr[1]);
-        IINCHIP_WRITE( Sn_DIPR2(s), addr[2]);
-        IINCHIP_WRITE( Sn_DIPR3(s), addr[3]);
-        IINCHIP_WRITE( Sn_DPORT0(s), (uint8)((port & 0xff00) >> 8));
-        IINCHIP_WRITE( Sn_DPORT1(s), (uint8)(port & 0x00ff));
-        IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_CONNECT);
+        much_ret = 1;
+        // set destination IP        
+        unFN_W5500WriteBuf_IO( Sn_DIPR0(s),muchp_addr,4);//设置IP
+        vFN_W5500_Write2Baye_IO( Sn_DPORT0(s),mun_port);//设置端口
+        vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_CONNECT);//send connection request in tcp mode(Client mode)
         /* wait for completion */
-        while ( IINCHIP_READ(Sn_CR(s) ) ) ;
+        while ( uchFN_W5500_Read1Baye_IO(Sn_CR(s) ) ) ;// Sn_CR 写成功后改变的是Sn_SR的值，读出来是0; 
 
-        while ( IINCHIP_READ(Sn_SR(s)) != SOCK_SYNSENT )
+        while ( uchFN_W5500_Read1Baye_IO(Sn_SR(s)) != SOCK_SYNSENT )//connection state, 已经发了请求，循环判断
         {
-            if(IINCHIP_READ(Sn_SR(s)) == SOCK_ESTABLISHED)
+            if(uchFN_W5500_Read1Baye_IO(Sn_SR(s)) == SOCK_ESTABLISHED)//success to connect
             {
                 break;
             }
-            if (uchFN_W5500getSn_IR(s) & Sn_IR_TIMEOUT)
+            if (uchFN_W5500getSn_IR(s) & Sn_IR_TIMEOUT)//超时 
             {
-                IINCHIP_WRITE(Sn_IR(s), (Sn_IR_TIMEOUT));  // clear TIMEOUT Interrupt
-                ret = 0;
+                vFN_W5500_Write1Baye_IO(Sn_IR(s), (Sn_IR_TIMEOUT));  // clear TIMEOUT Interrupt
+                much_ret = 0;
                 break;
             }
         }
     }
-
-   return ret;
+   return much_ret;
 }
 
 /**
@@ -159,13 +149,12 @@ uint8 connect(SOCKET s, uint8 * addr, uint16 port)
 *@param		s: socket number.
 *@return  1 for success else 0.
 */
-void disconnect(SOCKET s)
+void vFN_W5500SocketDisconnect(SOCKET s)
 {
-   IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_DISCON);
+   vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_DISCON);
 
    /* wait to process the command... */
-   while( IINCHIP_READ(Sn_CR(s) ) )
-      ;
+   while( uchFN_W5500_Read1Baye_IO(Sn_CR(s) ) ) ;
    /* ------- */
 }
 
@@ -176,81 +165,75 @@ void disconnect(SOCKET s)
 *@param		len: data length.
 *@return  1 for success else 0.
 */
-uint16 send(SOCKET s, const uint8 * buf, uint16 len)
+uint16_t unFN_W5500SocketSend(SOCKET s, const uint8_t * muchp_buf, uint16_t mun_len)
 {
-  uint8 status=0;
-  uint16 ret=0;
-  uint16 freesize=0;
+    uint8_t much_status=0;
+    uint16_t mun_ret=0;
+    uint16_t mun_freesize=0;
 
-  if (len > unFN_getIINCHIP_TxMAX(s)) ret = unFN_getIINCHIP_TxMAX(s); // check size not to exceed MAX size.
-  else ret = len;
+    if (mun_len > unFN_getSockTxSize(s)*1000) mun_ret = unFN_getSockTxSize(s); // check size not to exceed MAX size.
+    else mun_ret = mun_len;
 
   // if freebuf is available, start.
-  do
-  {
-    freesize = unFN_W5500getSn_TX_FSR(s);
-    status = IINCHIP_READ(Sn_SR(s));
-    if ((status != SOCK_ESTABLISHED) && (status != SOCK_CLOSE_WAIT))
+    do
     {
-      ret = 0;
-      break;
-    }
-  } while (freesize < ret);
+        mun_freesize = unFN_W5500getSn_TX_FSR(s);
+        much_status = uchFN_W5500_Read1Baye_IO(Sn_SR(s));
+        if ((much_status != SOCK_ESTABLISHED) && (much_status != SOCK_CLOSE_WAIT))
+        {
+            mun_ret = 0;
+            break;
+        }
+    } while (mun_freesize < mun_ret);
   
-  // copy data
-  vFN_W5500Tx_Pro(s, (uint8 *)buf, ret);
-  IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_SEND);
+    // copy data
+    vFN_W5500Tx_Pro(s, (uint8_t *)muchp_buf, mun_ret);
+    vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_SEND);
 
   /* wait to process the command... */
-  while( IINCHIP_READ(Sn_CR(s) ) );
+    while( uchFN_W5500_Read1Baye_IO(Sn_CR(s) ) );
 
-  while ( (IINCHIP_READ(Sn_IR(s) ) & Sn_IR_SEND_OK) != Sn_IR_SEND_OK )
-  {
-    status = IINCHIP_READ(Sn_SR(s));
-    if ((status != SOCK_ESTABLISHED) && (status != SOCK_CLOSE_WAIT) )
+    while ( (uchFN_W5500_Read1Baye_IO(Sn_IR(s) ) & Sn_IR_SEND_OK) != Sn_IR_SEND_OK )
     {
-      printf("SEND_OK Problem!!\r\n");
-      close(s);
-      return 0;
+        much_status = uchFN_W5500_Read1Baye_IO(Sn_SR(s));
+        if ((much_status != SOCK_ESTABLISHED) && (much_status != SOCK_CLOSE_WAIT) )
+        {
+            printf("SEND_OK Problem!!\r\n");
+            vFN_W5500_SocketClose(s);
+            return 0;
+        }
     }
-  }
-  IINCHIP_WRITE( Sn_IR(s) , Sn_IR_SEND_OK);
-
-#ifdef __DEF_IINCHIP_INT__
-   putISR(s, getISR(s) & (~Sn_IR_SEND_OK));
-#else
-   IINCHIP_WRITE( Sn_IR(s) , Sn_IR_SEND_OK);
-#endif
-
-   return ret;
+    vFN_W5500_Write1Baye_IO( Sn_IR(s) , Sn_IR_SEND_OK);
+    vFN_W5500_Write1Baye_IO( Sn_IR(s) , Sn_IR_SEND_OK);//写两次Sn_IR
+    return mun_ret;
 }
 
 /**
 *@brief		This function is an application I/F function which is used to receive the data in TCP mode.
-					It continues to wait for data as much as the application wants to receive.
+            It continues to wait for data as much as the application wants to receive.
 *@param		s: socket number.
 *@param		buf: data buffer to receive.
 *@param		len: data length.
 *@return  received data size for success else 0.
 */
-uint16 recv(SOCKET s, uint8 * buf, uint16 len)
+uint16_t unFN_W5500SocketRecv(SOCKET s, uint8_t * muchp_buf, uint16_t mun_len)
 {
-   uint16 ret=0;
-   if ( len > 0 )
+   uint16_t mun_ret=0;
+   if ( mun_len > 0 )
    {
-      vFN_W5500Rx_Pro(s, buf, len);
-      IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_RECV);
+      vFN_W5500Rx_Pro(s, muchp_buf, mun_len);
+      vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_RECV);
       /* wait to process the command... */
-      while( IINCHIP_READ(Sn_CR(s) ));
+      while( uchFN_W5500_Read1Baye_IO(Sn_CR(s) ));
       /* ------- */
-      ret = len;
+      mun_ret = mun_len;
    }
-   return ret;
+   return mun_ret;
 }
 
 /**
 *@brief   This function is an application I/F function which is used to send the data for other then TCP mode.
-					Unlike TCP transmission, The peer's destination address and the port is needed.
+          Unlike TCP transmission, The peer's destination address and the port is needed.
 *@param		s: socket number.
 *@param		buf: data buffer to send.
 *@param		len: data length.
@@ -258,46 +241,42 @@ uint16 recv(SOCKET s, uint8 * buf, uint16 len)
 *@param		port: IP port to send.
 *@return  This function return send data size for success else 0.
 */
-uint16 sendto(SOCKET s, const uint8 * buf, uint16 len, uint8 * addr, uint16 port)
+uint16_t unFN_W5500SocketSendUDP(SOCKET s, const uint8 * buf, uint16_t mun_len, uint8 * muchp_addr, uint16_t mun_port)
 {
-   uint16 ret=0;
+   uint16_t mun_ret=0;
 
-   if (len > unFN_getIINCHIP_TxMAX(s)) 
-   ret = unFN_getIINCHIP_TxMAX(s); // check size not to exceed MAX size.
-   else ret = len;
-
-   if( ((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) || ((port == 0x00)) )//||(ret == 0) )
+   if (mun_len > unFN_getSockTxSize(s)) 
+   mun_ret = unFN_getSockTxSize(s); // check size not to exceed MAX size.
+   else mun_ret = mun_len;
+    
+   if( *((uint32 *)&muchp_addr[0]) == 0 || ((mun_port == 0x00)) )//||(ret == 0) )
    {
       /* added return value */
-      ret = 0;
+      mun_ret = 0;
    }
    else
    {
-      IINCHIP_WRITE( Sn_DIPR0(s), addr[0]);
-      IINCHIP_WRITE( Sn_DIPR1(s), addr[1]);
-      IINCHIP_WRITE( Sn_DIPR2(s), addr[2]);
-      IINCHIP_WRITE( Sn_DIPR3(s), addr[3]);
-      IINCHIP_WRITE( Sn_DPORT0(s),(uint8)((port & 0xff00) >> 8));
-      IINCHIP_WRITE( Sn_DPORT1(s),(uint8)(port & 0x00ff));
+      unFN_W5500WriteBuf_IO(Sn_DIPR0(s),muchp_addr,4);//设置IP
+      vFN_W5500_Write2Baye_IO( Sn_DPORT0(s),mun_port);//设置端口
       // copy data
-      vFN_W5500Tx_Pro(s, (uint8 *)buf, ret);
-      IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_SEND);
+      vFN_W5500Tx_Pro(s, (uint8 *)buf, mun_ret);
+      vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_SEND);
       /* wait to process the command... */
-      while( IINCHIP_READ( Sn_CR(s) ) )
+      while( uchFN_W5500_Read1Baye_IO( Sn_CR(s) ) )
 	  ;
       /* ------- */
-     while( (IINCHIP_READ( Sn_IR(s) ) & Sn_IR_SEND_OK) != Sn_IR_SEND_OK )
+     while( (uchFN_W5500_Read1Baye_IO( Sn_IR(s) ) & Sn_IR_SEND_OK) != Sn_IR_SEND_OK )
      {
-      if (IINCHIP_READ( Sn_IR(s) ) & Sn_IR_TIMEOUT)
+      if (uchFN_W5500_Read1Baye_IO( Sn_IR(s) ) & Sn_IR_TIMEOUT)
       {
             /* clear interrupt */
-      IINCHIP_WRITE( Sn_IR(s) , (Sn_IR_SEND_OK | Sn_IR_TIMEOUT)); /* clear SEND_OK & TIMEOUT */
+      vFN_W5500_Write1Baye_IO( Sn_IR(s) , (Sn_IR_SEND_OK | Sn_IR_TIMEOUT)); /* clear SEND_OK & TIMEOUT */
       return 0;
       }
      }
-      IINCHIP_WRITE( Sn_IR(s) , Sn_IR_SEND_OK);
+      vFN_W5500_Write1Baye_IO( Sn_IR(s) , Sn_IR_SEND_OK);
    }
-   return ret;
+   return mun_ret;
 }
 
 /**
@@ -310,189 +289,86 @@ uint16 sendto(SOCKET s, const uint8 * buf, uint16 len, uint8 * addr, uint16 port
 *@param		port: IP port to receive.
 *@return	This function return received data size for success else 0.
 */
-uint16 recvfrom(SOCKET s, uint8 * buf, uint16 len, uint8 * addr, uint16 *port)
+uint16_t unFN_W5500SocketRecvfrom(SOCKET s, uint8_t * muchp_buf, uint16_t mun_len, uint8_t * muchp_addr, uint16_t *munp_port)
 {
-   uint8 head[8];
-   uint16 data_len=0;
-   uint16 ptr=0;
-   uint32 addrbsb =0;
-   if ( len > 0 )
+   uint8_t much_head[8];
+   uint16_t mun_data_len=0;
+   uint16_t mun_ptr=0;
+   uint32_t mui_addr =0;
+   if ( mun_len > 0 )
    {
-      ptr     = IINCHIP_READ(Sn_RX_RD0(s) );
-      ptr     = ((ptr & 0x00ff) << 8) + IINCHIP_READ(Sn_RX_RD1(s));
-      addrbsb = (uint32)(ptr<<8) +  (s<<5) + 0x18;
+      mun_ptr = unFN_W5500_Read2Baye_IO(Sn_RX_RD0(s));     
+      mui_addr = (uint32_t)(mun_ptr<<8) + (s<<5) + 0x18;
       
-      switch (IINCHIP_READ(Sn_MR(s) ) & 0x07)
+      switch (uchFN_W5500_Read1Baye_IO(Sn_MR(s) ) & 0x07)
       {
       case Sn_MR_UDP :
-        unFN_W5500ReadBuf(addrbsb, head, 0x08);        
-        ptr += 8;
-        // read peer's IP address, port number.
-        addr[0]  = head[0];
-        addr[1]  = head[1];
-        addr[2]  = head[2];
-        addr[3]  = head[3];
-        *port    = head[4];
-        *port    = (*port << 8) + head[5];
-        data_len = head[6];
-        data_len = (data_len << 8) + head[7];
+            unFN_W5500ReadBuf_IO(mui_addr, much_head, 0x08);        
+            mun_ptr += 8;
+            // read peer's IP address, port number.
+          
+            *((uint32_t *)&muchp_addr[0]) = *((uint32_t *)&much_head[0]);
+      
+            ((uint8_t *)&munp_port)[1] = much_head[4];
+            ((uint8_t *)&munp_port)[0] = much_head[5];
+      
+            ((uint8_t *)&mun_data_len)[1] = much_head[6];
+            ((uint8_t *)&mun_data_len)[0] = much_head[7];
 
-        addrbsb = (uint32)(ptr<<8) +  (s<<5) + 0x18;
-        unFN_W5500ReadBuf(addrbsb, buf, data_len);                
-        ptr += data_len;
+            mui_addr = (uint32_t)(mun_ptr<<8) + (s<<5) + 0x18;
+            unFN_W5500ReadBuf_IO(mui_addr, muchp_buf, mun_data_len);                
+            mun_ptr += mun_data_len;
 
-        IINCHIP_WRITE( Sn_RX_RD0(s), (uint8)((ptr & 0xff00) >> 8));
-        IINCHIP_WRITE( Sn_RX_RD1(s), (uint8)(ptr & 0x00ff));
-        break;
+            vFN_W5500_Write2Baye_IO( Sn_RX_RD0(s), mun_ptr);         
+            break;
 
       case Sn_MR_IPRAW :
-//	   	printf("\r\n Sn_MR_IPRAW \r\n");
-        unFN_W5500ReadBuf(addrbsb, head, 0x06);
-		       
-        ptr += 6;
-        addr[0]  = head[0];
-        addr[1]  = head[1];
-        addr[2]  = head[2];
-        addr[3]  = head[3];
-        data_len = head[4];
-        data_len = (data_len << 8) + head[5];
+            unFN_W5500ReadBuf_IO(mui_addr, much_head, 0x06);
+                   
+            mun_ptr += 6;
+            *((uint32_t *)&muchp_addr[0]) = *((uint32_t *)&much_head[0]);
+            ((uint8_t *)&mun_ptr)[1] = much_head[4];
+            ((uint8_t *)&mun_ptr)[0] = much_head[5];
 
-        addrbsb  = (uint32)(ptr<<8) +  (s<<5) + 0x18;
-	   
-//		printf(" data��%d \r\n",data_len);
-        unFN_W5500ReadBuf(addrbsb, buf, data_len);
-		 	        
-        ptr += data_len;
+            mui_addr  = (uint32_t)(mun_ptr<<8) +  (s<<5) + 0x18;
+           
+            unFN_W5500ReadBuf_IO(mui_addr, muchp_buf, mun_data_len);
+            mun_ptr += mun_data_len;
 
-        IINCHIP_WRITE( Sn_RX_RD0(s), (uint8)((ptr & 0xff00) >> 8));
-        IINCHIP_WRITE( Sn_RX_RD1(s), (uint8)(ptr & 0x00ff));
-		
-        break;
+            vFN_W5500_Write2Baye_IO( Sn_RX_RD0(s), mun_ptr);
+            
+            break;
 
       case Sn_MR_MACRAW :
-//	 printf("\r\n Sn_MR_MCRAW \r\n");
-        unFN_W5500ReadBuf(addrbsb, head, 0x02);
-        ptr+=2;
-        data_len = head[0];
-        data_len = (data_len<<8) + head[1] - 2;
-        if(data_len > 1514)
-        {
-           printf("data_len over 1514\r\n");
-           while(1);
-        }
+            unFN_W5500ReadBuf_IO(mui_addr, much_head, 0x02);
+            mun_ptr+=2;
+      
+            ((uint8_t *)&mun_data_len)[1] = much_head[0];
+            ((uint8_t *)&mun_data_len)[0] = much_head[1] - 2;
+        
+            if(mun_data_len > 1514)
+            {
+               printf("data_len over 1514\r\n");
+               while(1);
+            }
 
-        addrbsb  = (uint32)(ptr<<8) +  (s<<5) + 0x18;
-        unFN_W5500ReadBuf(addrbsb, buf, data_len);
-        ptr += data_len;
+            mui_addr  = (uint32)(mun_ptr<<8) +  (s<<5) + 0x18;
+            unFN_W5500ReadBuf_IO(mui_addr, muchp_buf, mun_data_len);
+            mun_ptr += mun_data_len;
 
-        IINCHIP_WRITE( Sn_RX_RD0(s), (uint8)((ptr & 0xff00) >> 8));
-        IINCHIP_WRITE( Sn_RX_RD1(s), (uint8)(ptr & 0x00ff));
-        break;
+            vFN_W5500_Write2Baye_IO( Sn_RX_RD0(s), mun_ptr);
+            break;
 
       default :
             break;
       }
-      IINCHIP_WRITE( Sn_CR(s) ,Sn_CR_RECV);
+      vFN_W5500_Write1Baye_IO( Sn_CR(s) ,Sn_CR_RECV);
 
       /* wait to process the command... */
-      while( IINCHIP_READ( Sn_CR(s)) ) ;
+      while( uchFN_W5500_Read1Baye_IO( Sn_CR(s)) ) ;
       /* ------- */
    }
-   return data_len;
+   return mun_data_len;
 }
 
-#ifdef __MACRAW__
-/**
-*@brief   OPen the 0-th socket with MACRAW mode
-*@param		None
-*@return	None
-*/
-void macraw_open(void)
-{
-  uint8 sock_num=0;
-  uint16 dummyPort = 0;
-  uint8 mFlag = 0;
-  sock_num = 0;
-  close(sock_num); // Close the 0-th socket
-  socket(sock_num, Sn_MR_MACRAW, dummyPort,mFlag); 
-}
-
-/**
-*@brief   OPen the 0-th socket with MACRAW mode
-*@param		buf: data buffer to send.
-*@param		len: data length.
-*@return	This function return sended data size for success else 0.
-*/
-uint16 macraw_send( const uint8 * buf, uint16 len )
-{
-   uint16 ret=0;
-   uint8 sock_num;
-   sock_num =0;
-
-
-   if (len > unFN_getIINCHIP_TxMAX(sock_num)) ret = unFN_getIINCHIP_TxMAX(sock_num); // check size not to exceed MAX size.
-   else ret = len;
-
-   vFN_W5500Tx_Pro(sock_num, (uint8 *)buf, len);
-
-   //W5500 SEND COMMAND
-   IINCHIP_WRITE(Sn_CR(sock_num),Sn_CR_SEND);
-   while( IINCHIP_READ(Sn_CR(sock_num)) );
-   while ( (IINCHIP_READ(Sn_IR(sock_num)) & Sn_IR_SEND_OK) != Sn_IR_SEND_OK );
-   IINCHIP_WRITE(Sn_IR(sock_num), Sn_IR_SEND_OK);
-
-   return ret;
-}
-
-/**
-*@brief   OPen the 0-th socket with MACRAW mode
-*@param		buf: data buffer to send.
-*@param		len: data length.
-*@return	This function return received data size for success else 0.
-*/
-uint16 macraw_recv( uint8 * buf, uint16 len )
-{
-   uint8 sock_num;
-   uint16 data_len=0;
-   uint16 dummyPort = 0;
-   uint16 ptr = 0;
-   uint8 mFlag = 0;
-   sock_num = 0;
-
-   if ( len > 0 )
-   {
-
-      data_len = 0;
-
-      ptr = IINCHIP_READ(Sn_RX_RD0(sock_num));
-      ptr = (uint16)((ptr & 0x00ff) << 8) + IINCHIP_READ( Sn_RX_RD1(sock_num) );
-      //-- read_data(s, (uint8 *)ptr, data, len); // read data
-      data_len = IINCHIP_READ_RXBUF(0, ptr);
-      ptr++;
-      data_len = ((data_len<<8) + IINCHIP_READ_RXBUF(0, ptr)) - 2;
-      ptr++;
-
-      if(data_len > 1514)
-      {
-         printf("data_len over 1514\r\n");
-         printf("\r\nptr: %X, data_len: %X", ptr, data_len);
-
-         /** recommand : close and open **/
-         close(sock_num); // Close the 0-th socket
-         socket(sock_num, Sn_MR_MACRAW, dummyPort,mFlag);  // OPen the 0-th socket with MACRAW mode
-         return 0;
-      }
-
-      IINCHIP_READ_RXBUF_BURST(sock_num, ptr, data_len, (uint8*)(buf));
-      ptr += data_len;
-
-      IINCHIP_WRITE(Sn_RX_RD0(sock_num),(uint8)((ptr & 0xff00) >> 8));
-      IINCHIP_WRITE(Sn_RX_RD1(sock_num),(uint8)(ptr & 0x00ff));
-      IINCHIP_WRITE(Sn_CR(sock_num), Sn_CR_RECV);
-      while( IINCHIP_READ(Sn_CR(sock_num)) ) ;
-   }
-
-   return data_len;
-}
-#endif
 

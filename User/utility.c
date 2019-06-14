@@ -7,80 +7,14 @@
 * @brief 				公共实用函数 延时函数 数据格式转换 
 ******************************************************************************
 */
+#include "utility.h"
 #include "w5500.h"
 #include "w5500_conf.h"
-#include "utility.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
 
-static uint8_t  fac_us=0;																										/*us延时倍乘数*/
-static uint16_t fac_ms=0;																										/*ms延时倍乘数*/
-
-/**
-*@brief		初始化延迟函数
-*@param		SYSCLK:系统时钟
-*@return	无
-*/
-void systick_init (uint8_t sysclk)
-{
-	SysTick->CTRL&=0xfffffffb;																						/*bit2清空,选择外部时钟  HCLK/8*/
-	fac_us=sysclk/8;		    
-	fac_ms=(uint16_t)fac_us*1000;
-}								    
-
-/**
-*@brief	  秒延时函数
-*@param		time_s:要延时秒时间数
-*@return	无
-*/
-void delay_s( uint32 time_s )
-{
-  for(;time_s>0;time_s--)
-    delay_ms(1000);
-}
-
-/**
-*@brief	  毫秒延时函数
-*@param		time_ms:要延时毫秒时间数
-*@return	无
-*/
-void delay_ms( uint32 time_ms )
-{	 		  	  
-	uint32_t temp;		   
-	SysTick->LOAD=(uint32_t)time_ms*fac_ms;																		/*时间加载(SysTick->LOAD为24bit)*/
-	SysTick->VAL =0x00;           																				/*清空计数器*/
-	SysTick->CTRL=0x01 ;         																					/*开始倒数*/ 
-	do
-	{
-		temp=SysTick->CTRL;
-	}
-	while(temp&0x01&&!(temp&(1<<16)));																		/*等待时间到达*/
-	SysTick->CTRL=0x00;       																						/*关闭计数器*/
-	SysTick->VAL =0X00;      																							/*清空计数器*/	  	    
-}   
-
-/**
-*@brief	  微秒延时函数
-*@param		time_ms:要延时微秒时间数
-*@return	无
-*/
-void delay_us( uint32 time_us )
-{		
-	uint32_t temp;	    	 
-	SysTick->LOAD=time_us*fac_us; 																				/*时间加载*/	  		 
-	SysTick->VAL=0x00;        																						/*清空计数器*/
-	SysTick->CTRL=0x01 ;      																						/*开始倒数 */	 
-	do
-	{
-		temp=SysTick->CTRL;
-	}
-	while(temp&0x01&&!(temp&(1<<16)));																		/*等待时间到达*/
-	SysTick->CTRL=0x00;       																						/*关闭计数器*/
-	SysTick->VAL =0X00;       																						/*清空计数器*/
-}
 
 /**
 *@brief	 	字符转转化为8位整型函数
@@ -89,10 +23,10 @@ void delay_us( uint32 time_us )
 */
 uint16 atoi16(char* str,uint16 base	)
 {
-  unsigned int num = 0;
-  while (*str !=0)
+    unsigned int num = 0;
+    while (*str !=0)
           num = num * base + c2d(*str++);
-  return num;
+    return num;
 }
 
 /**
@@ -102,10 +36,10 @@ uint16 atoi16(char* str,uint16 base	)
 */
 uint32 atoi32(char* str,uint16 base	)
 {
-  uint32 num = 0;
-  while (*str !=0)
+    uint32 num = 0;
+    while (*str !=0)
           num = num * base + c2d(*str++);
-  return num;
+    return num;
 }
 
 /**
@@ -115,16 +49,15 @@ uint32 atoi32(char* str,uint16 base	)
 */
 void itoa(uint16 n,uint8 str[5], uint8 len)
 {
-  
-  uint8 i=len-1;
+    uint8 i=len-1;
 
-  memset(str,0x20,len);
-  do{
-  str[i--]=n%10+'0';
-  
- }while((n/=10)>0);
+    memset(str,0x20,len);
+    do{
+    str[i--]=n%10+'0';
 
- return;
+    }while((n/=10)>0);
+
+    return;
 }
 
 
@@ -424,7 +357,7 @@ u_char check_dest_in_local(u_long destip)
 	u_char * pdestip = (u_char*)&destip;
 	for(i =0; i < 4; i++)
 	{
-		if((pdestip[i] & IINCHIP_READ(SUBR0+i)) != (IINCHIP_READ(SIPR0+i) & IINCHIP_READ(SUBR0+i)))
+		if((pdestip[i] & uchFN_W5500_Read1Baye_IO(SUBR0+i)) != (uchFN_W5500_Read1Baye_IO(SIPR0+i) & uchFN_W5500_Read1Baye_IO(SUBR0+i)))
 			return 1;	// Remote
 	}
 	return 0;

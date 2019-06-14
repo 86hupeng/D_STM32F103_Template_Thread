@@ -1,7 +1,7 @@
 /**
 ******************************************************************************
 * @file    			DHCP.c
-* @author  			WIZnet Software Team 
+* @author  			
 * @version 			V1.0
 * @date    			2015-02-14
 * @brief   			DHCP	Client
@@ -15,7 +15,6 @@
 #include "socket.h"
 
 #include "dhcp.h"
-#include "utility.h"
 #include "w5500_conf.h"
 
 //#define DHCP_DEBUG

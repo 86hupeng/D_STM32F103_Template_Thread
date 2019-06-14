@@ -1,443 +1,295 @@
 /*
 **************************************************************************************************
 * @file    		w5500_conf.c
-* @author  		WIZnet Software Team 
+* @author  		ËÉ°Èπè 
 * @version 		V1.0
-* @date    		2015-02-14
-* @brief  		≈‰÷√MCU£¨“∆÷≤W5500≥Ã–Ú–Ë“™–ﬁ∏ƒµƒŒƒº˛£¨≈‰÷√W5500µƒMAC∫ÕIPµÿ÷∑
+* @date    		2019-04-16
+* @brief  		ÈÖçÁΩÆW5500 , MAC\IPÂú∞ÂùÄÁ≠âÁ≠â
 **************************************************************************************************
 */
 #include <stdio.h> 
 #include <string.h>
 
+#include "gpio.h"
 #include "w5500_conf.h"
-#include "utility.h"
 #include "w5500.h"
-#include "dhcp.h"
-//#include "GeneralTIM/bsp_GeneralTIM.h"
-//#include "i2c/bsp_EEPROM.h"
+#include "spi.h"
 
-CONFIG_MSG  ConfigMsg;																	/*≈‰÷√Ω·ππÃÂ*/
-EEPROM_MSG_STR EEPROM_MSG;															/*EEPROM¥Ê¥¢–≈œ¢Ω·ππÃÂ*/
-SPI_HandleTypeDef hspi_w5500;
+W5500Config_T  gT_netconfig;//ÈÖçÁΩÆÁªìÊûÑ‰Ωì
+//ÂÆö‰πâIPÁõ∏ÂÖ≥‰ø°ÊÅØ
+uint8_t gucha_mac_6[6]={0x12,0x34,0x56,0x78,0x9A,0xBC};//MACÂú∞ÂùÄ
+uint8_t gucha_dns_server_4[4]={8,8,8,8};//DNS
+uint8_t gucha_local_ip_4[4]  ={10,7,5,121};//Êú¨Âú∞IPÂú∞ÂùÄ
+uint8_t gucha_subnet_4[4]    ={255,255,255,0};//Â≠êÁΩëÊé©Á†Å
+uint8_t gucha_gateway_4[4]   ={10,7,5,1};//ÁΩëÂÖ≥
+uint16_t gun_local_port=4999;//Êú¨Âú∞Á´ØÂè£Âè∑
 
-/*∂®“ÂMACµÿ÷∑,»Áπ˚∂‡øÈW5500Õ¯¬Á  ≈‰∞Â‘⁄Õ¨“ªœ÷≥°π§◊˜£¨«Î π”√≤ªÕ¨µƒMACµÿ÷∑*/
-uint8 mac[6]={0x00,0x08,0xdc,0x11,0x11,0x11};
+//ÂÆö‰πâËøúÁ´ØIP‰ø°ÊÅØ
+uint8_t  gucha_remote_ip_4[4]={10,7,5,1};//ËøúÁ´ØIPÂú∞ÂùÄ
+uint16_t gun_remote_port=6000;//ËøúÁ´ØÁ´ØÂè£Âè∑
 
-/*∂®“Âƒ¨»œIP–≈œ¢*/
-uint8 local_ip[4]  ={192,168,31,231};										/*∂®“ÂW5500ƒ¨»œIPµÿ÷∑*/
-uint8 subnet[4]    ={255,255,255,0};										/*∂®“ÂW5500ƒ¨»œ◊”Õ¯—⁄¬Î*/
-uint8 gateway[4]   ={192,168,31,1};											/*∂®“ÂW5500ƒ¨»œÕ¯πÿ*/
-uint8 dns_server[4]={114,114,114,114};									/*∂®“ÂW5500ƒ¨»œDNS*/
-
-uint16 local_port=5000;	                       					/*∂®“Â±æµÿ∂Àø⁄*/
-
-/*∂®“Â‘∂∂ÀIP–≈œ¢*/
-uint8  remote_ip[4]={192,168,31,230};			  						/*‘∂∂ÀIPµÿ÷∑*/
-uint16 remote_port=8080;																/*‘∂∂À∂Àø⁄∫≈*/
-
-/*IP≈‰÷√∑Ω∑®—°‘Ò£¨«Î◊‘––—°‘Ò*/
-uint8	ip_from=IP_FROM_DEFINE;				
-
-uint8         dhcp_ok   = 0;													   			/*dhcp≥…π¶ªÒ»°IP*/
-uint32	      ms        = 0;															  	/*∫¡√Îº∆ ˝*/
-uint32	      dhcp_time = 0;															  	/*DHCP‘À––º∆ ˝*/
-__IO uint8_t  ntptimer  = 0;															  	/*NPT√Îº∆ ˝*/
+//IPÈÖçÁΩÆÊñπÊ≥ï
+uint8_t	guch_ipfrom = IP_FROM_DEFINE;				
 
 /**
-*@brief		”≤º˛∏¥ŒªW5500
-*@param		Œﬁ
-*@return	Œﬁ
+*@brief		W5500ÂàùÂßãÂåñ
+*@param		Êó†
+*@return	Êó†
 */
-void reset_w5500(void)
+void vFN_W5500Init_Pro(void)
 {
-  HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN,GPIO_PIN_RESET);
-  delay_ms(10);  
-  HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN,GPIO_PIN_SET);
-  delay_ms(1600);
+    vFN_W5500Reset_IO(); //Á°¨‰ª∂Â§ç‰Ωç
+    vFN_W5500_Set_IP();  //ËÆæÁΩÆIPÂú∞ÂùÄ
+}
+
+
+
+/**
+*@brief		Á°¨‰ª∂Â§ç‰ΩçW5500
+*@param		Êó†
+*@return	Êó†
+*/
+void vFN_W5500Reset_IO(void)
+{
+    W5500_RESET_ON_GPIO_LOW;
+    HAL_Delay(2);//ÈªòËÆ§500us
+    W5500_RESET_OFF_GPIO_HIGH;
+    HAL_Delay(2);//ÈªòËÆ§1ms
 }
 
 /**
-*@brief		≈‰÷√W5500µƒIPµÿ÷∑
-*@param		Œﬁ
-*@return	Œﬁ
+*@brief		ÈÖçÁΩÆW5500 IPÂú∞ÂùÄ
+*@param		Êó†
+*@return	Êó†
 */
-void set_w5500_ip(void)
+void vFN_W5500_Set_IP(void)
 {		
-   /*∏¥÷∆∂®“Âµƒ≈‰÷√–≈œ¢µΩ≈‰÷√Ω·ππÃÂ*/
-	memcpy(ConfigMsg.mac, mac, 6);
-	memcpy(ConfigMsg.lip,local_ip,4);
-	memcpy(ConfigMsg.sub,subnet,4);
-	memcpy(ConfigMsg.gw,gateway,4);
-	memcpy(ConfigMsg.dns,dns_server,4);
-	if(ip_from==IP_FROM_DEFINE)	
-		printf("  π”√∂®“ÂµƒIP–≈œ¢≈‰÷√W5500\r\n");
-	
-	/* π”√EEPROM¥Ê¥¢µƒIP≤Œ ˝*/	
-	if(ip_from==IP_FROM_EEPROM)
-	{
-		/*¥”EEPROM÷–∂¡»°IP≈‰÷√–≈œ¢*/
-		read_config_from_eeprom();		
-		
-		/*»Áπ˚∂¡»°EEPROM÷–MAC–≈œ¢,»Áπ˚“—≈‰÷√£¨‘Úø… π”√*/		
-		if( *(EEPROM_MSG.mac)==0x00&& *(EEPROM_MSG.mac+1)==0x08&&*(EEPROM_MSG.mac+2)==0xdc)		
-		{
-			printf(" IP from EEPROM\r\n");
-			/*∏¥÷∆EEPROM≈‰÷√–≈œ¢µΩ≈‰÷√µƒΩ·ππÃÂ±‰¡ø*/
-			memcpy(ConfigMsg.lip,EEPROM_MSG.lip, 4);				
-			memcpy(ConfigMsg.sub,EEPROM_MSG.sub, 4);
-			memcpy(ConfigMsg.gw, EEPROM_MSG.gw, 4);
-		}
-		else
-		{
-			printf(" EEPROMŒ¥≈‰÷√, π”√∂®“ÂµƒIP–≈œ¢≈‰÷√W5500,≤¢–¥»ÎEEPROM\r\n");
-			write_config_to_eeprom();	/* π”√ƒ¨»œµƒIP–≈œ¢£¨≤¢≥ı ºªØEEPROM÷– ˝æ›*/
-		}			
+   //IPÈÖçÁΩÆËµãÂÄºÂà∞ÁªìÊûÑ‰Ωì
+    if(guch_ipfrom==IP_FROM_DEFINE)
+    {
+        gT_netconfig.uchp_mac_6 = gucha_mac_6;//MACÂú∞ÂùÄ
+        gT_netconfig.uchp_dns_4 = gucha_dns_server_4;//DNS
+        gT_netconfig.uchp_lip_4 = gucha_local_ip_4;//Êú¨Âú∞IPÂú∞ÂùÄ
+        gT_netconfig.uchp_sub_4 = gucha_subnet_4;//Â≠êÁΩëÊé©Á†Å
+        gT_netconfig.uchp_gwy_4 = gucha_gateway_4;//ÁΩëÂÖ≥
 	}
-
-	/* π”√DHCPªÒ»°IP≤Œ ˝£¨–Ëµ˜”√DHCP◊”∫Ø ˝*/		
-	if(ip_from==IP_FROM_DHCP)								
+	//Ëé∑Âèñ DHCP IPÂèÇÊï∞ÔºåÈúÄË¶ÅË∞ÉÁî®DHCPÂ≠êÂáΩÊï∞	
+	else if(guch_ipfrom==IP_FROM_DHCP)								
 	{
-		/*∏¥÷∆DHCPªÒ»°µƒ≈‰÷√–≈œ¢µΩ≈‰÷√Ω·ππÃÂ*/
+		//Âà§Êñ≠ÊòØÂê¶DHCPÊàêÂäü
 		if(dhcp_ok==1)
-		{
-			printf(" IP from DHCP\r\n");		 
-			memcpy(ConfigMsg.lip,DHCP_GET.lip, 4);
-			memcpy(ConfigMsg.sub,DHCP_GET.sub, 4);
-			memcpy(ConfigMsg.gw,DHCP_GET.gw, 4);
-			memcpy(ConfigMsg.dns,DHCP_GET.dns,4);
+		{		 
+//			memcpy(ConfigMsg.lip,DHCP_GET.lip, 4);
+//			memcpy(ConfigMsg.sub,DHCP_GET.sub, 4);
+//			memcpy(ConfigMsg.gw,DHCP_GET.gw, 4);
+//			memcpy(ConfigMsg.dns,DHCP_GET.dns,4);
 		}
 		else
 		{
-			printf(" DHCP◊”≥Ã–ÚŒ¥‘À––,ªÚ’ﬂ≤ª≥…π¶\r\n");
-			printf("  π”√∂®“ÂµƒIP–≈œ¢≈‰÷√W5500\r\n");
+//			printf(" DHCPÂ≠êÁ®ãÂ∫èÊú™ËøêË°åÔºåÊàñËÄÖ‰∏çÊàêÂäü\r\n");
+//			printf(" ‰ΩøÁî®ÂÆö‰πâÁöÑÁöÑIP‰ø°ÊÅØÈÖçÁΩÆW5500\r\n");
 		}
 	}
 		
-	/*“‘œ¬≈‰÷√–≈œ¢£¨∏˘æ›–Ë“™—°”√*/	
-	ConfigMsg.sw_ver[0]=FW_VER_HIGH;
-	ConfigMsg.sw_ver[1]=FW_VER_LOW;	
 
-	/*Ω´IP≈‰÷√–≈œ¢–¥»ÎW5500œ‡”¶ºƒ¥Ê∆˜*/	
-	vFN_W5500setSUBR(ConfigMsg.sub);
-	vFN_W5500setGAR(ConfigMsg.gw);
-	vFN_W5500setSIPR(ConfigMsg.lip);
-	
-	vFN_W5500getSIPR (local_ip);			
-	printf(" W5500 IPµÿ÷∑   : %d.%d.%d.%d\r\n", local_ip[0],local_ip[1],local_ip[2],local_ip[3]);
-	vFN_W5500getSUBR(subnet);
-	printf(" W5500 ◊”Õ¯—⁄¬Î : %d.%d.%d.%d\r\n", subnet[0],subnet[1],subnet[2],subnet[3]);
-	vFN_W5500getGAR(gateway);
-	printf(" W5500 Õ¯πÿ     : %d.%d.%d.%d\r\n", gateway[0],gateway[1],gateway[2],gateway[3]);
+	//Â∞ÜIPÂèÇÊï∞ÂÜôÂÖ• W5500ÂØÑÂ≠òÂô® 
+    vFN_W5500setSHAR(gT_netconfig.uchp_mac_6);//ËÆæÁΩÆMACÂú∞ÂùÄ
+    vFN_W5500setSIPR(gT_netconfig.uchp_lip_4);//ËÆæÁΩÆÊú¨Âú∞IPÂú∞ÂùÄ
+	vFN_W5500setSUBR(gT_netconfig.uchp_sub_4);//ËÆæÁΩÆÂ≠êÁΩëÊé©Á†ÅÂú∞ÂùÄ
+	vFN_W5500setGAR(gT_netconfig.uchp_gwy_4);//ËÆæÁΩÆÁΩëÂÖ≥Âú∞ÂùÄ
+
 }
 
 /**
-*@brief		≈‰÷√W5500µƒMACµÿ÷∑
-*@param		Œﬁ
-*@return	Œﬁ
+*@brief		ÂÜôÂÖ•‰∏Ä‰∏™Â≠óËäÇÊï∞ÊçÆÂà∞W5500ÔºåÂèëÈÄÅ4‰∏™Â≠óËäÇÊï∞ÊçÆ
+*@param		mui_addr: ÂÜôÂÖ•Âú∞ÂùÄ
+*@param     much_dataÔºöÂÜôÂÖ•Êï∞ÊçÆ
+*@return	Êó†
 */
-void set_w5500_mac(void)
+void vFN_W5500_Write1Baye_IO(uint32_t mui_addr,uint8_t much_data)
 {
-	memcpy(ConfigMsg.mac, mac, 6);
-	vFN_W5500setSHAR(ConfigMsg.mac);	/**/
-	memcpy(DHCP_GET.mac, mac, 6);
+    uint8_t much_tx_data_4[4]= {0,0,0,0};
+    //ÁºìÂ≠òÊï∞ÊçÆ
+    much_tx_data_4[0] = ((uint8_t *)&mui_addr)[2];
+    much_tx_data_4[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_4[2] = (((uint8_t *)&mui_addr)[0] & 0xF8) + 4;
+    much_tx_data_4[3] = much_data;
+    //ÂèëÈÄÅÊï∞ÊçÆ
+    W5500_SPI1CS_ON_GPIO_LOW;   
+    HAL_SPI_Transmit(&hspi1, much_tx_data_4, 4, 10);
+    W5500_SPI1CS_OFF_GPIO_HIGH;
 }
 
 /**
-*@brief		≈‰÷√W5500µƒGPIOΩ”ø⁄
-*@param		Œﬁ
-*@return	Œﬁ
+*@brief		ÂÜôÂÖ•2‰∏™Â≠óËäÇÊï∞ÊçÆÂà∞W5500ÔºåÂèëÈÄÅ5‰∏™Â≠óËäÇÊï∞ÊçÆ
+*@param		mui_addr: ÂÜôÂÖ•Âú∞ÂùÄ
+*@param     much_dataÔºöÂÜôÂÖ•Êï∞ÊçÆ
+*@return	Êó†
 */
-void gpio_for_w5500_config(void)
+void vFN_W5500_Write2Baye_IO(uint32_t mui_addr,uint16_t much_data)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
-  
-  WIZ_SPIx_RCC_CLK_ENABLE();
-  WIZ_SPI_GPIO_ClK_ENABLE();
-  WIZ_SPIx_SCS_CLK_ENABLE();
-	WIZ_INT_CLK_ENABLE();
-  WIZ_RESET_CLK_ENABLE();
-  
-  GPIO_InitStruct.Pin = WIZ_SPIx_SCLK_PIN|WIZ_SPIx_MOSI_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(WIZ_SPIx_GPIO_PORT, &GPIO_InitStruct);
-  
-  GPIO_InitStruct.Pin = WIZ_SPIx_MISO_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(WIZ_SPIx_GPIO_PORT, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_SET);
-  GPIO_InitStruct.Pin = WIZ_SPIx_SCS_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  HAL_GPIO_Init(WIZ_SPIx_SCS_PORT, &GPIO_InitStruct);
-
-  /* Disable the Serial Wire Jtag Debug Port SWJ-DP */
-  __HAL_AFIO_REMAP_SWJ_DISABLE();
-
-  hspi_w5500.Instance = WIZ_SPIx;
-  hspi_w5500.Init.Mode = SPI_MODE_MASTER;
-  hspi_w5500.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi_w5500.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi_w5500.Init.CLKPolarity = SPI_POLARITY_HIGH;
-  hspi_w5500.Init.CLKPhase = SPI_PHASE_2EDGE;
-  hspi_w5500.Init.NSS = SPI_NSS_SOFT;
-  hspi_w5500.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
-  hspi_w5500.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi_w5500.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi_w5500.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi_w5500.Init.CRCPolynomial = 7;
-  HAL_SPI_Init(&hspi_w5500);
-	
-  /*∂®“ÂINT“˝Ω≈*/	
-  GPIO_InitStruct.Pin = WIZ_INT_PIN;                  
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(WIZ_SPIx_SCS_PORT, &GPIO_InitStruct);
-
-  /*∂®“ÂRESET“˝Ω≈*/
-  HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_SET);
-  GPIO_InitStruct.Pin = WIZ_RESET_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  HAL_GPIO_Init(WIZ_RESET_PORT, &GPIO_InitStruct);
+    uint8_t much_tx_data_5[5]= {0,0,0,0,0};
+    //ÁºìÂ≠òÊï∞ÊçÆ
+    much_tx_data_5[0] = ((uint8_t *)&mui_addr)[2];//È´òÂ≠óËäÇÂú®Ââç
+    much_tx_data_5[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_5[2] = (((uint8_t *)&mui_addr)[0] & 0xF8) + 4;
+    much_tx_data_5[3] = ((uint8_t *)&much_data)[1];//È´òÂ≠óËäÇÂú®Ââç
+    much_tx_data_5[4] = ((uint8_t *)&much_data)[0];
+    //ÂèëÈÄÅÊï∞ÊçÆ
+    W5500_SPI1CS_ON_GPIO_LOW;
+    HAL_SPI_Transmit(&hspi1, much_tx_data_5, 5, 10);
+    W5500_SPI1CS_OFF_GPIO_HIGH;
 }
 
 /**
-*@brief		W5500∆¨—°–≈∫≈…Ë÷√∫Ø ˝
-*@param		val: Œ™°∞0°±±Ì æ∆¨—°∂Àø⁄Œ™µÕ£¨Œ™°∞1°±±Ì æ∆¨—°∂Àø⁄Œ™∏ﬂ
-*@return	Œﬁ
+*@brief		ÂÜôÂÖ•2‰∏™Â≠óËäÇÊï∞ÊçÆÂà∞W5500ÔºåÂèëÈÄÅ7‰∏™Â≠óËäÇÊï∞ÊçÆ
+*@param		mui_addr: ÂÜôÂÖ•Âú∞ÂùÄ
+*@param     much_dataÔºöÂÜôÂÖ•Êï∞ÊçÆ
+*@return	Êó†
 */
-void wiz_cs(uint8_t val)
+void vFN_W5500_Write4Baye_IO(uint32_t mui_addr,uint32_t much_data)
 {
-	if (val == LOW) 
-	{
-	  HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_RESET);
-	}
-	else if (val == HIGH)
-	{
-	  HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_SET);
-	}
+    uint8_t much_tx_data_7[7]= {0,0,0,0,0};
+    //ÁºìÂ≠òÊï∞ÊçÆ
+    much_tx_data_7[0] = ((uint8_t *)&mui_addr)[2];//È´òÂ≠óËäÇÂú®Ââç
+    much_tx_data_7[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_7[2] = (((uint8_t *)&mui_addr)[0] & 0xF8) + 4;
+    much_tx_data_7[3] = ((uint8_t *)&much_data)[3];//È´òÂ≠óËäÇÂú®Ââç
+    much_tx_data_7[4] = ((uint8_t *)&much_data)[2];
+    much_tx_data_7[5] = ((uint8_t *)&much_data)[1];
+    much_tx_data_7[6] = ((uint8_t *)&much_data)[0];
+    //ÂèëÈÄÅÊï∞ÊçÆ
+    W5500_SPI1CS_ON_GPIO_LOW;   
+    HAL_SPI_Transmit(&hspi1, much_tx_data_7, 7, 10);
+    W5500_SPI1CS_OFF_GPIO_HIGH;
 }
 
 /**
-*@brief		…Ë÷√W5500µƒ∆¨—°∂Àø⁄SCSnŒ™µÕ
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void iinchip_csoff(void)
-{
-	wiz_cs(LOW);
-}
-
-/**
-*@brief		…Ë÷√W5500µƒ∆¨—°∂Àø⁄SCSnŒ™∏ﬂ
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void iinchip_cson(void)
-{	
-   wiz_cs(HIGH);
-}
-
-uint8_t SPI_SendByte(uint8_t byte)
-{
-  uint8_t d_read,d_send=byte;
-  if(HAL_SPI_TransmitReceive(&hspi_w5500,&d_send,&d_read,1,0xFFFFFF)!=HAL_OK)
-    d_read=0XFF;
-  
-  return d_read; 
-}
-
-/**
-*@brief		STM32 SPI1∂¡–¥8Œª ˝æ›
-*@param		dat£∫–¥»Îµƒ8Œª ˝æ›
-*@return	Œﬁ
-*/
-uint8_t  IINCHIP_SpiSendData(uint8_t dat)
-{
-   return(SPI_SendByte(dat));
-}
-
-/**
-*@brief		–¥»Î“ª∏ˆ8Œª ˝æ›µΩW5500
-*@param		addrbsb: –¥»Î ˝æ›µƒµÿ÷∑
-*@param   data£∫–¥»Îµƒ8Œª ˝æ›
-*@return	Œﬁ
-*/
-void IINCHIP_WRITE( uint32 addrbsb,  uint8 data)
-{
-   iinchip_csoff();                              		
-   IINCHIP_SpiSendData( (addrbsb & 0x00FF0000)>>16);	
-   IINCHIP_SpiSendData( (addrbsb & 0x0000FF00)>> 8);
-   IINCHIP_SpiSendData( (addrbsb & 0x000000F8) + 4);  
-   IINCHIP_SpiSendData(data);                   
-   iinchip_cson();                            
-}
-
-/**
-*@brief		¥”W5500∂¡≥ˆ“ª∏ˆ8Œª ˝æ›
-*@param		addrbsb: –¥»Î ˝æ›µƒµÿ÷∑
-*@param   data£∫¥”–¥»Îµƒµÿ÷∑¥¶∂¡»°µΩµƒ8Œª ˝æ›
-*@return	Œﬁ
-*/
-uint8 IINCHIP_READ(uint32 addrbsb)
-{
-   uint8 data = 0;
-   iinchip_csoff();                            
-   IINCHIP_SpiSendData( (addrbsb & 0x00FF0000)>>16);//
-   IINCHIP_SpiSendData( (addrbsb & 0x0000FF00)>> 8);
-   IINCHIP_SpiSendData( (addrbsb & 0x000000F8))    ;
-   data = IINCHIP_SpiSendData(0x00);            
-   iinchip_cson();                               
-   return data;    
-}
-
-/**
-*@brief		ÂêëW5500ÂÜôÂÖ•lenÂ≠óËäÇÊï∞ÊçÆ ÔºåIINCHIP_SpiSendDataÂáΩÊï∞ÈúÄË¶ÅÊõøÊç¢ÈáçÂÜô
+*@brief		ÂêëW5500ÂÜôÂÖ•NÂ≠óËäÇÊï∞ÊçÆ 
 *@param		addrbsb:ÂÜôÂÖ•Âú∞ÂùÄ
 *@param     bufÔºöÂÜôÂÖ•ÁöÑÁºìÂ≠òÊï∞ÊçÆ
 *@param     lenÔºöÂÜôÂÖ•Êï∞ÊçÆÈïøÂ∫¶
 *@return	lenÔºöËøîÂõûÂÜôÂÖ•Êï∞ÊçÆÈïøÂ∫¶÷∑Ôºå
 */
-uint16_t unFN_W5500WriteBuf(uint32_t mui_addr,uint8_t* much_buf,uint16_t mun_len)
+uint16_t unFN_W5500WriteBuf_IO(uint32_t mui_addr,uint8_t* muchp_buf,uint16_t mun_len)
 {
-   uint16_t i = 0;
-   if(mun_len == 0) return mun_len; 
-   iinchip_csoff();                               
-   IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[2]);//IINCHIP_SpiSendData( (addrbsb & 0x00FF0000)>>16);
-   IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[1]);//IINCHIP_SpiSendData( (addrbsb & 0x0000FF00)>> 8);
-   IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[0] & 0xF8 + 4); //IINCHIP_SpiSendData( (addrbsb & 0x000000F8) + 4); 
-    
-   for(i=0;i<mun_len;i++)
-   {
-     IINCHIP_SpiSendData(much_buf[i]);
-   }
-   iinchip_cson();                           
-   return mun_len;  
+    uint16_t i=0,j=0;
+    uint8_t much_tx_data_500[500]; 
+    if(mun_len > 0) 
+    {   //ÁºìÂ≠òÊï∞ÊçÆ      
+        much_tx_data_500[i++] = ((uint8_t *)&mui_addr)[2];
+        much_tx_data_500[i++] = ((uint8_t *)&mui_addr)[1];
+        much_tx_data_500[i++] = (((uint8_t *)&mui_addr)[0] & 0xF8) + 4;
+        for(j=0;j<mun_len;j++)
+        {
+            much_tx_data_500[i++] = muchp_buf[j]; 
+        }
+        i = mun_len +3;
+         //ÂèëÈÄÅÊï∞ÊçÆ  
+        W5500_SPI1CS_ON_GPIO_LOW;   
+        HAL_SPI_Transmit(&hspi1, much_tx_data_500, i, 100);
+        W5500_SPI1CS_OFF_GPIO_HIGH;
+    }
+    return mun_len;  
 }
 
 /**
-*@brief		ÂêëW5500ËØªÂá∫lenÂ≠óËäÇÊï∞ÊçÆ ÔºåIINCHIP_SpiSendDataÂáΩÊï∞ÈúÄË¶ÅÊõøÊç¢ÈáçÂÜô
+*@brief		‰ªéW5500Âú∞ÂùÄËØªÂá∫‰∏Ä‰∏™Â≠óËäÇ
+*@param		mui_addr:ËØªÂú∞ÂùÄ
+*@param     
+*@return	dataÔºöËØªÂà∞ÁöÑÊï∞ÊçÆ
+*/
+uint8_t uchFN_W5500_Read1Baye_IO(uint32_t mui_addr)
+{
+    uint8_t much_data = 0;
+    uint8_t much_tx_data_4[4] = {0,0,0,0};
+
+    W5500_SPI1CS_ON_GPIO_LOW;  
+    much_tx_data_4[0] = ((uint8_t *)&mui_addr)[2];
+    much_tx_data_4[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_4[2] = ((uint8_t *)&mui_addr)[0] & 0xF8;
+    HAL_SPI_Transmit(&hspi1, much_tx_data_4, 3, 10);
+    HAL_SPI_Receive(&hspi1, &much_data, 1, 10);
+    W5500_SPI1CS_OFF_GPIO_HIGH;
+
+    return much_data;    
+}
+
+/**
+*@brief		‰ªéW5500Âú∞ÂùÄËØªÂá∫ËøûÁª≠ÁöÑ2‰∏™Â≠óËäÇÔºåuint16_tÊï∞ÊçÆÔºåÈ´òÂ≠óËäÇÂú®Ââç
+*@param		mui_addr:ËØªÂú∞ÂùÄ
+*@param     
+*@return	mun_dataÔºöËØªÂà∞ÁöÑuint16_tÊï∞ÊçÆ
+*/
+uint16_t unFN_W5500_Read2Baye_IO(uint32_t mui_addr)
+{
+    uint8_t much_tx_data_4[4] = {0,0,0,0};
+    uint8_t much_data[2] = {0,0};
+    uint16_t mun_data = 0;
+    //Êï∞ÊçÆËØªÂèñ
+    W5500_SPI1CS_ON_GPIO_LOW;  
+    much_tx_data_4[0] = ((uint8_t *)&mui_addr)[2];
+    much_tx_data_4[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_4[2] = ((uint8_t *)&mui_addr)[0] & 0xF8;
+    HAL_SPI_Transmit(&hspi1, much_tx_data_4, 3, 10);
+    HAL_SPI_Receive(&hspi1, much_data, 2, 10); //ËØª‰∏§‰∏™Â≠óËäÇ
+    W5500_SPI1CS_OFF_GPIO_HIGH;
+    //Êï∞ÊçÆÂ§ÑÁêÜÔºåËΩ¨Êç¢Êàêuint16_t
+    ((uint8_t *)&mun_data)[1] = much_data[0];//È´òÂ≠óËäÇ
+    ((uint8_t *)&mun_data)[0] = much_data[1];
+    return mun_data;    
+}
+
+/**
+*@brief		‰ªéW5500Âú∞ÂùÄËØªÂá∫ËøûÁª≠ÁöÑ4‰∏™Â≠óËäÇ
+*@param		mui_addr:ËØªÂú∞ÂùÄ
+*@param     
+*@return	dataÔºöËØªÂà∞ÁöÑÊï∞ÊçÆ
+*/
+uint32_t uiFN_W5500_Read4Baye_IO(uint32_t mui_addr)
+{
+    uint8_t much_rxdata[4] = {0,0,0,0};
+    uint32_t mui_data = 0;
+    uint8_t much_tx_data_4[4] = {0,0,0,0};
+
+    W5500_SPI1CS_ON_GPIO_LOW;  
+    much_tx_data_4[0] = ((uint8_t *)&mui_addr)[2];
+    much_tx_data_4[1] = ((uint8_t *)&mui_addr)[1];
+    much_tx_data_4[2] = ((uint8_t *)&mui_addr)[0] & 0xF8;
+    HAL_SPI_Transmit(&hspi1, much_tx_data_4, 3, 10);
+    HAL_SPI_Receive(&hspi1, much_rxdata, 4, 10); //ËØªÂõõ‰∏™Â≠óËäÇ
+    W5500_SPI1CS_OFF_GPIO_HIGH;
+    
+    ((uint8_t *)&mui_data)[3] = much_rxdata[0];//È´òÂ≠óËäÇ
+    ((uint8_t *)&mui_data)[2] = much_rxdata[1];//
+    ((uint8_t *)&mui_data)[1] = much_rxdata[2];//
+    ((uint8_t *)&mui_data)[0] = much_rxdata[3];//
+    return mui_data;    
+}
+
+/**
+*@brief		ÂêëW5500ËØªÂá∫NÂ≠óËäÇÊï∞ÊçÆ 
 *@param		addrbsb: ËØªÂá∫Âú∞ÂùÄ
 *@param 	buf: ËØªÂá∫ÁöÑÁºìÂ≠òÊï∞ÊçÆ
 *@param		len: ËØªÂá∫Êï∞ÊçÆÈïøÂ∫¶
 *@return	len: ËøîÂõûËØªÂá∫Êï∞ÊçÆÈïøÂ∫¶÷∑Ôºå
 */
-uint16 unFN_W5500ReadBuf(uint32_t mui_addr,uint8_t* much_buf,uint16_t mun_len)
+uint16_t unFN_W5500ReadBuf_IO(uint32_t mui_addr,uint8_t* much_buf,uint16_t mun_len)
 {
-  uint16 i = 0;
-  if(mun_len == 0) return mun_len; 
+    uint8_t much_tx_data_4[4];  
+    
+    if(mun_len > 0) 
+    {
+        much_tx_data_4[0] = ((uint8_t *)&mui_addr)[2];
+        much_tx_data_4[1] = ((uint8_t *)&mui_addr)[1];
+        much_tx_data_4[2] = ((uint8_t *)&mui_addr)[0] & 0xF8;
 
-  iinchip_csoff();                                
-  IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[2]);//IINCHIP_SpiSendData( (addrbsb & 0x00FF0000)>>16);
-  IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[1]);//IINCHIP_SpiSendData( (addrbsb & 0x0000FF00)>> 8);
-  IINCHIP_SpiSendData( ((uint8_t *)&mui_addr)[0] & 0xF8);    //IINCHIP_SpiSendData( (addrbsb & 0x000000F8)); 
-  for(i = 0; i < mun_len; i++)                   
-  {
-    much_buf[i] = IINCHIP_SpiSendData(0x00);
-  }
-  iinchip_cson();                                  
-  return mun_len;
-}
-
-/**
-*@brief		–¥≈‰÷√–≈œ¢µΩEEPROM
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void write_config_to_eeprom(void)
-{
-	uint16 dAddr=0;
-	EEPROM_WriteBytes(ConfigMsg.mac,dAddr,(uint8)EEPROM_MSG_LEN);				
-	delay_ms(10);																							
-}
-
-/**
-*@brief		¥”EEPROM∂¡≈‰÷√–≈œ¢
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void read_config_from_eeprom(void)
-{
-  EEPROM_CheckOk();
-	EEPROM_ReadBytes(EEPROM_MSG.mac,0,EEPROM_MSG_LEN);
-	delay_us(10);
-}
-
-/**
-*@brief		STM32∂® ±∆˜2≥ı ºªØ
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void timer2_init(void)
-{
-	GENERAL_TIMx_Init();		/* TIM2ø™ ºº∆ ± */
-  /* ‘⁄÷–∂œƒ£ Ωœ¬∆Ù∂Ø∂® ±∆˜ */
-  HAL_TIM_Base_Start_IT(&htimx);
-}
-
-/**
-  * ∫Ø ˝π¶ƒ‹: ∑«◊Ë»˚ƒ£ Ωœ¬∂® ±∆˜µƒªÿµ˜∫Ø ˝
-  *  ‰»Î≤Œ ˝: htim£∫∂® ±∆˜æ‰±˙
-  * ∑µ ªÿ ÷µ: Œﬁ
-  * Àµ    √˜: Œﬁ
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  timer2_isr();
-}
-
-/**
-*@brief		dhcp”√µΩµƒ∂® ±∆˜≥ı ºªØ
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void dhcp_timer_init(void)
-{
-  timer2_init();																	
-}
-
-/**
-*@brief		ntp”√µΩµƒ∂® ±∆˜≥ı ºªØ
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void ntp_timer_init(void)
-{
-  timer2_init();																	
-}
-
-/**
-*@brief		∂® ±∆˜2÷–∂œ∫Ø ˝
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void timer2_isr(void)
-{
-  ms++;	
-  if(ms>=1000)
-  {  
-    ms=0;
-    dhcp_time++;																					/*DHCP∂® ±º”1S*/
-	  #ifndef	__NTP_H__
-	  ntptimer++;																						/*NTP÷ÿ ‘ ±º‰º”1S*/
-	  #endif
-  }
-}
-/**
-*@brief		STM32œµÕ≥»Ì∏¥Œª∫Ø ˝
-*@param		Œﬁ
-*@return	Œﬁ
-*/
-void reboot(void)
-{
-  pFunction Jump_To_Application;
-  uint32 JumpAddress;
-  printf(" œµÕ≥÷ÿ∆Ù÷–°≠°≠\r\n");
-  JumpAddress = *(__IO uint32_t*) (0x00000004);
-  Jump_To_Application = (pFunction) JumpAddress;
-  Jump_To_Application();
+        W5500_SPI1CS_ON_GPIO_LOW;  
+        HAL_SPI_Transmit(&hspi1, much_tx_data_4, 3, 10);
+        HAL_SPI_Receive(&hspi1, much_buf, mun_len, 10);
+        W5500_SPI1CS_OFF_GPIO_HIGH;
+     } 
+    return mun_len;
 }
 
 
